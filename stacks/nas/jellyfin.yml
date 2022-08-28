@@ -1,0 +1,17 @@
+version: "3.5"
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    restart: unless-stopped
+    user: 2000:100
+
+    network_mode: host
+
+    volumes:
+      - ${DOCKER_DATA_PATH}/jellyfin/config:/config
+      - ${DOCKER_DATA_PATH}/jellyfin/cache:/cache
+      - ${JELLYFIN_MEDIA_PATH}:/media
+
+    environment:
+      - JELLYFIN_PublishedServerUrl=${JELLYFIN_URL}

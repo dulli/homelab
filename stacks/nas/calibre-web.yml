@@ -1,0 +1,17 @@
+version: "2.1"
+services:
+  calibre-web:
+    image: linuxserver/calibre-web
+    container_name: calibre-web
+    restart: unless-stopped
+
+    ports:
+      - 8083:8083
+
+    volumes:
+      - ${DOCKER_DATA_PATH}/calibre-web:/config
+      - ${CALIBRE_ROOT}:/books
+
+    environment:
+      - TZ=Europe/London
+      - DOCKER_MODS=linuxserver/calibre-web:calibre

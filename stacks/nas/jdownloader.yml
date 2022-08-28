@@ -1,0 +1,19 @@
+services:
+  jdownloader:
+    image: jaymoulin/jdownloader:latest
+    container_name: jdownloader
+    restart: unless-stopped
+
+    ports:
+      - 3129:3129
+
+    volumes:
+      - ${DOCKER_DATA_PATH}/jdownloader/cfg:/opt/JDownloader/app/cfg
+      - ${JD_DOWNLOAD_PATH}:/opt/JDownloader/Downloads
+      - /etc/localtime:/etc/localtime:ro
+
+    environment:
+      MYJD_USER: ${MYJD_USER}
+      MYJD_PASSWORD: ${MYJD_PASSWORD}
+      MYJD_DEVICE_NAME: ${MYJD_NAME}
+      UMASK: 0001
