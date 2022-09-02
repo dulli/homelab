@@ -1,7 +1,7 @@
 version: "3"
 services:
   homeassistant:
-    image: homeassistant/home-assistant:latest
+    image: ghcr.io/home-assistant/home-assistant:stable
     container_name: homeassistant
     restart: unless-stopped
     privileged: true
