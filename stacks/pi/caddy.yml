@@ -1,0 +1,20 @@
+version: "3.7"
+services:
+  caddy:
+    image: ghcr.io/dulli/caddy:2
+    container_name: caddy
+    restart: unless-stopped
+
+    network_mode: host
+
+    volumes:
+      - ${DOCKER_DATA_PATH}/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ${DOCKER_DATA_PATH}/caddy/static:/srv/static
+      - ${DOCKER_DATA_PATH}/caddy/data:/data
+      - ${DOCKER_DATA_PATH}/caddy/config:/config
+
+    environment:
+      - CF_API_TOKEN=${CF_API_TOKEN}
+      - BASIC_AUTH_USER=${BASIC_AUTH_USER}
+      - BASIC_AUTH_PASSWD=${BASIC_AUTH_PASSWD}
+      - DOMAIN=${DOMAIN}
