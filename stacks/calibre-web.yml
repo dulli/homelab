@@ -9,7 +9,7 @@ services:
       - 8083:8083
 
     volumes:
-      - ${DOCKER_DATA_PATH}/calibre-web:/config
+      - ${DOCKER_DATA_PATH:-/var/docker}/calibre-web:/config
       - ${CALIBRE_ROOT}:/books
 
     environment:

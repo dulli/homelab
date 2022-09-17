@@ -8,8 +8,8 @@ services:
       - 3129:3129
 
     volumes:
-      - ${DOCKER_DATA_PATH}/jdownloader/cfg:/opt/JDownloader/app/cfg
-      - ${JD_DOWNLOAD_PATH}:/opt/JDownloader/Downloads
+      - ${DOCKER_DATA_PATH:-/var/docker}/jdownloader/cfg:/opt/JDownloader/app/cfg
+      - ${JD_DOWNLOAD_PATH:-/var/jdownloader}:/opt/JDownloader/Downloads
       - /etc/localtime:/etc/localtime:ro
 
     environment:

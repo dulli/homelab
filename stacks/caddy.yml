@@ -8,10 +8,10 @@ services:
     network_mode: host
 
     volumes:
-      - ${DOCKER_DATA_PATH}/caddy/Caddyfile:/etc/caddy/Caddyfile
-      - ${DOCKER_DATA_PATH}/caddy/static:/srv/static
-      - ${DOCKER_DATA_PATH}/caddy/data:/data
-      - ${DOCKER_DATA_PATH}/caddy/config:/config
+      - ${DOCKER_DATA_PATH:-/var/docker}/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ${DOCKER_DATA_PATH:-/var/docker}/caddy/static:/srv/static
+      - ${DOCKER_DATA_PATH:-/var/docker}/caddy/data:/data
+      - ${DOCKER_DATA_PATH:-/var/docker}/caddy/config:/config
 
     environment:
       - CF_API_TOKEN=${CF_API_TOKEN}
