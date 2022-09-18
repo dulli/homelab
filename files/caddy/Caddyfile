@@ -19,7 +19,7 @@
 }
 
 home.{$DOMAIN} {
-        reverse_proxy pi:8123
+        reverse_proxy core:8123
 }
 
 jelly.{$DOMAIN} {
@@ -55,7 +55,7 @@ books.{$DOMAIN} {
         handle @internal {
                 @portainer host portainer.lan.{$DOMAIN}
                 handle @portainer {
-                        reverse_proxy pi:9000
+                        reverse_proxy core:9000
                 }
 
                 @omv host omv.lan.{$DOMAIN}
