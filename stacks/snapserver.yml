@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  snapserver:
+    image: ghcr.io/dulli/snapserver:0
+    container_name: snapserver
+    restart: unless-stopped
+
+    ports:
+      - 1704:1704
+      - 1780:1780
+
+    # volumes:
+    #   - ${DOCKER_DATA_PATH:-/var/docker}/snapcast/server:/config
+
+    # environment:
+    #   - CONFIG_PATH="/config/snapserver.conf" # optional

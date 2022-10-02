@@ -58,6 +58,11 @@ books.{$DOMAIN} {
                         reverse_proxy core:9000
                 }
 
+                @snapcast host snapcast.lan.{$DOMAIN}
+                handle @snapcast {
+                        reverse_proxy core:1780
+                }
+
                 @omv host omv.lan.{$DOMAIN}
                 handle @omv {
                         reverse_proxy nas:5000
@@ -76,6 +81,11 @@ books.{$DOMAIN} {
                 @kodi host kodi.lan.{$DOMAIN}
                 handle @kodi {
                         reverse_proxy wz-htpc:8080
+                }
+
+                @hyperion host hyperion.lan.{$DOMAIN}
+                handle @hyperion {
+                        reverse_proxy wz-htpc:8090
                 }
         }
         respond "Access denied" 403
