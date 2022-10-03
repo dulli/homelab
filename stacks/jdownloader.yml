@@ -17,3 +17,4 @@ services:
       MYJD_USER: ${MYJD_USER}
       MYJD_PASSWORD: ${MYJD_PASSWORD}
       MYJD_DEVICE_NAME: ${MYJD_NAME}
+      UMASK: 0113
