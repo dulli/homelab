@@ -5,9 +5,7 @@ services:
     container_name: snapserver
     restart: unless-stopped
 
-    ports:
-      - 1704:1704
-      - 1780:1780
+    network_mode: host
 
     # volumes:
     #   - ${DOCKER_DATA_PATH:-/var/docker}/snapcast/server:/config

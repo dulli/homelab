@@ -1,4 +1,4 @@
-FROM alpine:3
+FROM alpine:edge
 RUN apk add --no-cache tar snapcast-client
 
 ENV SNAPSERVER 172.17.0.1
