@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  actual-server:
+    image: jlongster/actual-server:1.0-alpine
+    container_name: actual-server
+    restart: unless-stopped
+
+    ports:
+      - 5006:5006
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/actual/server:/data
