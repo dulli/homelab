@@ -4,7 +4,7 @@
         dynamic_dns {
                 provider cloudflare {env.CF_API_TOKEN}
                 domains {
-                        {$DOMAIN} vpn home jelly books
+                        {$DOMAIN} vpn home jelly books cash
                 }
                 versions ipv4
         }
@@ -19,29 +19,20 @@
 }
 
 home.{$DOMAIN} {
-        reverse_proxy core:8123
+        reverse_proxy localhost:8123
 }
 
-jelly.{$DOMAIN} {
-        reverse_proxy nas:8096
+cash.{$DOMAIN} {
+        reverse_proxy core:5006
+}
+
+jelly.{$DOMAIN}, books.{$DOMAIN}, omv.lan.{$DOMAIN}, nas.lan.{$DOMAIN} {
+        reverse_proxy nas
         handle_errors {
                 @502 expression {err.status_code} == 502
                 handle @502 {
                         wake_on_lan 00:11:32:42:e8:21
-                        reverse_proxy nas:8096 {
-                                lb_try_duration 120s
-                        }
-                }
-        }
-}
-
-books.{$DOMAIN} {
-        reverse_proxy nas:8083
-        handle_errors {
-                @502 expression {err.status_code} == 502
-                handle @502 {
-                        wake_on_lan 00:11:32:42:e8:21
-                        reverse_proxy nas:8083 {
+                        reverse_proxy nas {
                                 lb_try_duration 120s
                         }
                 }
@@ -55,22 +46,12 @@ books.{$DOMAIN} {
         handle @internal {
                 @portainer host portainer.lan.{$DOMAIN}
                 handle @portainer {
-                        reverse_proxy core:9000
+                        reverse_proxy localhost:9000
                 }
 
                 @snapcast host snapcast.lan.{$DOMAIN}
                 handle @snapcast {
-                        reverse_proxy core:1780
-                }
-
-                @omv host omv.lan.{$DOMAIN}
-                handle @omv {
-                        reverse_proxy nas:5000
-                }
-
-                @nas host nas.lan.{$DOMAIN}
-                handle @nas {
-                        reverse_proxy nas:5001
+                        reverse_proxy localhost:1780
                 }
 
                 @vac host wz-vac.lan.{$DOMAIN}
@@ -81,11 +62,6 @@ books.{$DOMAIN} {
                 @kodi host kodi.lan.{$DOMAIN}
                 handle @kodi {
                         reverse_proxy wz-htpc:8080
-                }
-
-                @hyperion host hyperion.lan.{$DOMAIN}
-                handle @hyperion {
-                        reverse_proxy wz-htpc:8090
                 }
         }
         respond "Access denied" 403
