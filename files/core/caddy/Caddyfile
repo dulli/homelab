@@ -34,13 +34,26 @@ flux.{$DOMAIN} {
         reverse_proxy localhost:36188
 }
 
-jelly.{$DOMAIN}, books.{$DOMAIN}, omv.lan.{$DOMAIN}, nas.lan.{$DOMAIN} {
-        reverse_proxy nas
+jelly.{$DOMAIN} {
+        reverse_proxy nas:8096
         handle_errors {
                 @502 expression {err.status_code} == 502
                 handle @502 {
                         wake_on_lan 00:11:32:42:e8:21
-                        reverse_proxy nas {
+                        reverse_proxy nas:8096 {
+                                lb_try_duration 120s
+                        }
+                }
+        }
+}
+
+books.{$DOMAIN} {
+        reverse_proxy nas:8083
+        handle_errors {
+                @502 expression {err.status_code} == 502
+                handle @502 {
+                        wake_on_lan 00:11:32:42:e8:21
+                        reverse_proxy nas:8083 {
                                 lb_try_duration 120s
                         }
                 }
@@ -65,6 +78,16 @@ jelly.{$DOMAIN}, books.{$DOMAIN}, omv.lan.{$DOMAIN}, nas.lan.{$DOMAIN} {
                 @hyperion host hyperion.lan.{$DOMAIN}
                 handle @hyperion {
                         reverse_proxy localhost:8090
+                }
+
+                @omv host omv.lan.{$DOMAIN}
+                handle @omv {
+                        reverse_proxy nas:5000
+                }
+
+                @nas host nas.lan.{$DOMAIN}
+                handle @nas {
+                        reverse_proxy nas:5001
                 }
 
                 @vac host wz-vac.lan.{$DOMAIN}
