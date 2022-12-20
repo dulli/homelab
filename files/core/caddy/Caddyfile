@@ -4,7 +4,7 @@
         dynamic_dns {
                 provider cloudflare {env.CF_API_TOKEN}
                 domains {
-                        {$DOMAIN} vpn home jelly books cash
+                        {$DOMAIN} vpn home jelly books cash noco
                 }
                 versions ipv4
         }
@@ -24,6 +24,10 @@ home.{$DOMAIN} {
 
 cash.{$DOMAIN} {
         reverse_proxy localhost:5006
+}
+
+noco.{$DOMAIN} {
+        reverse_proxy localhost:8080
 }
 
 jelly.{$DOMAIN}, books.{$DOMAIN}, omv.lan.{$DOMAIN}, nas.lan.{$DOMAIN} {
