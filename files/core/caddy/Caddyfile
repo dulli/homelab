@@ -23,7 +23,7 @@ home.{$DOMAIN} {
 }
 
 cash.{$DOMAIN} {
-        reverse_proxy core:5006
+        reverse_proxy localhost:5006
 }
 
 jelly.{$DOMAIN}, books.{$DOMAIN}, omv.lan.{$DOMAIN}, nas.lan.{$DOMAIN} {
@@ -52,6 +52,11 @@ jelly.{$DOMAIN}, books.{$DOMAIN}, omv.lan.{$DOMAIN}, nas.lan.{$DOMAIN} {
                 @snapcast host snapcast.lan.{$DOMAIN}
                 handle @snapcast {
                         reverse_proxy localhost:1780
+                }
+
+                @hyperion host hyperion.lan.{$DOMAIN}
+                handle @hyperion {
+                        reverse_proxy localhost:8090
                 }
 
                 @vac host wz-vac.lan.{$DOMAIN}
