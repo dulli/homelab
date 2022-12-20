@@ -3,4 +3,13 @@
     "editor.detectIndentation": false,
     "editor.formatOnSave": true,
     "editor.formatOnType": false,
+    "spellright.language": [
+        "de",
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext"
+    ],
 }
