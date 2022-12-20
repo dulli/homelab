@@ -1,0 +1,39 @@
+version: "3.4"
+services:
+  db:
+    image: postgres:15
+    container_name: miniflux_db
+    restart: always
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/miniflux/db:/var/lib/postgresql/data
+
+    environment:
+      - POSTGRES_USER=miniflux
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "miniflux"]
+      interval: 10s
+      start_period: 30s
+
+  miniflux:
+    image: ghcr.io/miniflux/miniflux:latest-distroless
+    container_name: miniflux
+    restart: always
+    depends_on:
+      - db
+
+    ports:
+      - "${PORT}:8080"
+
+    environment:
+      - DATABASE_URL=postgres://miniflux:${DB_PASSWORD}@db/miniflux?sslmode=disable
+      - RUN_MIGRATIONS=1
+      - CREATE_ADMIN=1
+      - ADMIN_USERNAME=${MINIFLUX_USER}
+      - ADMIN_PASSWORD=${MINIFLUX_PASSWORD}
+      - BASE_URL=${MINIFLUX_URL}
+
+    healthcheck:
+      test: ["CMD", "/usr/bin/miniflux", "-healthcheck", "auto"]
