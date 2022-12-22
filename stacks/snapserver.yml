@@ -11,4 +11,4 @@ services:
     #   - ${DOCKER_DATA_PATH:-/var/docker}/snapcast/server:/config
 
     # environment:
-    #   - CONFIG_PATH="/config/snapserver.conf" # optional
+    #   CONFIG_PATH: "/config/snapserver.conf" # optional

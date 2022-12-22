@@ -13,5 +13,5 @@ services:
       - ${CALIBRE_ROOT}:/books
 
     environment:
-      - TZ=Europe/Berlin
-      - DOCKER_MODS=linuxserver/calibre-web:calibre
+      TZ: ${TZ:-Europe/Berlin}
+      DOCKER_MODS: linuxserver/calibre-web:calibre

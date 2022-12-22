@@ -14,4 +14,4 @@ services:
       - ${JELLYFIN_MEDIA_PATH}:/media
 
     environment:
-      - JELLYFIN_PublishedServerUrl=${JELLYFIN_URL}
+      JELLYFIN_PublishedServerUrl: ${JELLYFIN_URL}

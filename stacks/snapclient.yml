@@ -10,4 +10,4 @@ services:
       - /dev/snd:/dev/snd
 
     # environment:
-    #   - SNAPSERVER=${SNAPSERVER} # optional
+    #   SNAPSERVER: ${SNAPSERVER} # optional

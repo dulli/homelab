@@ -14,7 +14,7 @@ services:
       - ${DOCKER_DATA_PATH:-/var/docker}/caddy/config:/config
 
     environment:
-      - CF_API_TOKEN=${CF_API_TOKEN}
-      - BASIC_AUTH_USER=${BASIC_AUTH_USER}
-      - BASIC_AUTH_PASSWD=${BASIC_AUTH_PASSWD}
-      - DOMAIN=${DOMAIN}
+      CF_API_TOKEN: ${CF_API_TOKEN}
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER}
+      BASIC_AUTH_PASSWD: ${BASIC_AUTH_PASSWD}
+      DOMAIN: ${DOMAIN}
