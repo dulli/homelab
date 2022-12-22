@@ -14,7 +14,7 @@ services:
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/hyperion:/config
-      - /dev:/dev
+      - /dev/serial/by-id/${SERIAL_ID}:/dev/ttyUSB0
 
     # environment:
     #   - CONFIG_PATH=${CONFIG_PATH}
