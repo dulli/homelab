@@ -1,0 +1,19 @@
+version: "3"
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: always
+
+    ports:
+      - 3011:3011
+      - 3012:3012
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/vaultwarden:/data
+
+    environment:
+      ROCKET_PORT: 3011
+      WEBSOCKET_ENABLED: true
+      SIGNUPS_ALLOWED: false
+      DOMAIN: ${DOMAIN}
