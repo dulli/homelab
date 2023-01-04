@@ -1,0 +1,15 @@
+version: "2"
+services:
+  pyload:
+    image: ghcr.io/dulli/pyload-ng:0
+    container_name: pyload-ng
+    restart: unless-stopped
+    user: ${UID:-1000}:${GID:-1000}
+
+    ports:
+      - 8666:8000 # Webinterface
+      - 9666:9666 # Click 'N' Load
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/pyload:/opt/pyload/config
+      - ${DOWNLOAD_PATH:-/var/pyload}:/opt/pyload/downloads

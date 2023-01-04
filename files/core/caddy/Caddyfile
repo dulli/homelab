@@ -4,7 +4,7 @@
         dynamic_dns {
                 provider cloudflare {env.CF_API_TOKEN}
                 domains {
-                        {$DOMAIN} vpn home jelly books cash noco flux vault
+                        {$DOMAIN} vpn home jelly books photos cash noco flux vault dl
                 }
                 versions ipv4
         }
@@ -38,6 +38,10 @@ vault.{$DOMAIN} {
         reverse_proxy localhost:3011
 }
 
+dl.{$DOMAIN} {
+        reverse_proxy localhost:8666
+}
+
 jelly.{$DOMAIN} {
         reverse_proxy nas:8096
         handle_errors {
@@ -58,6 +62,19 @@ books.{$DOMAIN} {
                 handle @502 {
                         wake_on_lan 00:11:32:42:e8:21
                         reverse_proxy nas:8083 {
+                                lb_try_duration 120s
+                        }
+                }
+        }
+}
+
+photos.{$DOMAIN} {
+        reverse_proxy nas:8023
+        handle_errors {
+                @502 expression {err.status_code} == 502
+                handle @502 {
+                        wake_on_lan 00:11:32:42:e8:21
+                        reverse_proxy nas:8023 {
                                 lb_try_duration 120s
                         }
                 }
