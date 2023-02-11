@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  frigate:
+    image: blakeblackshear/frigate:stable
+    container_name: frigate
+    restart: unless-stopped
+    privileged: true
+    shm_size: "64mb" # (width * height * 1.5 * 9 + 270480)/1048576 = <shm size in mb> (per Camera)
+
+    devices:
+      - /dev/dri/renderD128 # for intel hwaccel
+      #- /dev/bus/usb:/dev/bus/usb # passes the USB Coral
+      #- /dev/apex_0:/dev/apex_0 # passes a PCIe Coral, follow driver instructions here https://coral.ai/docs/m2/get-started/#2a-on-linux
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKER_DATA_PATH:-/var/docker}/frigate/config.yml:/config/config.yml:ro
+      - ${DOCKER_DATA_PATH:-/var/docker}/frigate/storage:/media/frigate
+      - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+
+    ports:
+      - 5000:5000
+      - 1935:1935 # RTMP feeds
+
+    environment:
+      FRIGATE_RTSP_PASSWORD: ${RTSP_PASSWORD}
+      FRIGATE_MQTT_PASSWORD: ${MQTT_PASSWORD}
+      LIBVA_DRIVER_NAME: "i965"

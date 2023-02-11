@@ -1,0 +1,32 @@
+mqtt:
+  host: 192.168.188.25
+  user: frigate
+  password: "{FRIGATE_MQTT_PASSWORD}"
+
+ffmpeg:
+  hwaccel_args: -hwaccel vaapi
+    -hwaccel_device /dev/dri/renderD128
+    -hwaccel_output_format yuv420p
+
+cameras:
+  WZ-CCTV:
+    ffmpeg:
+      output_args:
+        record: -f segment -segment_time 10 -segment_format mp4 -reset_timestamps 1 -strftime 1 -c:v copy -c:a aac
+        rtmp: -c:v copy -c:a aac -f flv
+      inputs:
+        - path: "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=1"
+          roles:
+            - detect
+        - path: "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=0"
+          roles:
+            - record
+            - rtmp
+    rtmp:
+      enabled: True
+    detect:
+      enabled: False
+    record:
+      enabled: True
+      retain:
+        days: 5
