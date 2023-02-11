@@ -4,6 +4,7 @@ services:
     image: postgres:15
     container_name: miniflux_db
     restart: always
+    user: ${UID:-1000}:${GID:-1000}
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/miniflux/db:/var/lib/postgresql/data
@@ -21,6 +22,7 @@ services:
     image: ghcr.io/miniflux/miniflux:latest-distroless
     container_name: miniflux
     restart: always
+    user: ${UID:-1000}:${GID:-1000}
     depends_on:
       - db
 
