@@ -17,5 +17,5 @@ ADD defaults/pyload.cfg  ${CONFIG_PATH}/settings/pyload.cfg
 EXPOSE 8000
 EXPOSE 9666
 
-ENTRYPOINT pyload --storagedir ${DOWNLOAD_PATH} --userdir ${CONFIG_PATH}
+ENTRYPOINT pyload --quit; pyload --storagedir ${DOWNLOAD_PATH} --userdir ${CONFIG_PATH}
 LABEL org.opencontainers.image.source="https://github.com/dulli/homelab"
