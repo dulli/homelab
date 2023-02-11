@@ -4,6 +4,7 @@ services:
     image: vaultwarden/server:latest
     container_name: vaultwarden
     restart: always
+    user: ${UID:-1000}:${GID:-1000}
 
     ports:
       - 3011:3011
@@ -17,3 +18,26 @@ services:
       WEBSOCKET_ENABLED: true
       SIGNUPS_ALLOWED: false
       DOMAIN: ${DOMAIN}
+
+  vaultwarden-backup:
+    image: tiredofit/db-backup
+    container_name: vaultwarden-backup
+    restart: always
+    user: ${UID:-1000}:${GID:-1000}
+    depends_on:
+      - vaultwarden
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/backups:/backup
+      - ${DOCKER_DATA_PATH:-/var/docker}/vaultwarden/db.sqlite3:/vaultwarden.sqlite3
+
+    environment:
+      - DB_TYPE=sqlite3
+      - DB_HOST=/vaultwarden.sqlite3
+      - DB_NAME=ALL
+      - DB_DUMP_BEGIN=+1
+      - DB_CLEANUP_TIME=2880
+      - CHECKSUM=SHA1
+      - COMPRESSION=GZ
+      - GZ_RSYNCABLE=TRUE
+      - CONTAINER_ENABLE_MONITORING=FALSE
