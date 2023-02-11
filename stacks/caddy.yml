@@ -18,3 +18,23 @@ services:
       BASIC_AUTH_USER: ${BASIC_AUTH_USER}
       BASIC_AUTH_PASSWD: ${BASIC_AUTH_PASSWD}
       DOMAIN: ${DOMAIN}
+
+  goaccess:
+    image: allinurl/goaccess
+    restart: unless-stopped
+
+    command: >
+      /data/access.log
+      -o /srv/report/index.html
+      --real-time-html
+      --log-format=CADDY
+      --db-path=/srv/data
+      --persist
+      --restore
+
+    ports:
+      - 7890
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/caddy/data:/data:ro
+      - ${DOCKER_DATA_PATH:-/var/docker}/caddy/goaccess:/srv

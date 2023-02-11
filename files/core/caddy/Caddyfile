@@ -4,9 +4,14 @@
         dynamic_dns {
                 provider cloudflare {env.CF_API_TOKEN}
                 domains {
-                        {$DOMAIN} vpn home jelly books photos cash noco flux vault dl
+                        {$DOMAIN} vpn home jelly books photos cash noco flux vault dl cnl
                 }
                 versions ipv4
+        }
+        log access {
+                output file /data/logs/access.log
+                format json
+                include http.log.access
         }
 }
 
@@ -35,6 +40,7 @@ flux.{$DOMAIN} {
 }
 
 vault.{$DOMAIN} {
+        log
         reverse_proxy localhost:3011
 }
 
@@ -42,7 +48,15 @@ dl.{$DOMAIN} {
         reverse_proxy localhost:8666
 }
 
+cnl.{$DOMAIN} {
+        basicauth {
+                pyload $2a$14$XbwsL7fUErCmRiXr2uoa7.LgG10iE5GkEqpMp.Q36tMc85mPvmTy.
+        }
+        reverse_proxy localhost:9666
+}
+
 jelly.{$DOMAIN} {
+        log
         reverse_proxy nas:8096
         handle_errors {
                 @502 expression {err.status_code} == 502
@@ -56,6 +70,7 @@ jelly.{$DOMAIN} {
 }
 
 books.{$DOMAIN} {
+        log
         reverse_proxy nas:8083
         handle_errors {
                 @502 expression {err.status_code} == 502
@@ -69,6 +84,7 @@ books.{$DOMAIN} {
 }
 
 photos.{$DOMAIN} {
+        log
         reverse_proxy nas:8023
         handle_errors {
                 @502 expression {err.status_code} == 502
@@ -86,6 +102,17 @@ photos.{$DOMAIN} {
                 remote_ip 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8 fe80::/64
         }
         handle @internal {
+                @goaccess_wss host logs-live.lan.{$DOMAIN}
+                handle @goaccess_wss {
+                        reverse_proxy localhost:7890
+                }
+
+                @goaccess host logs.lan.{$DOMAIN}
+                handle @goaccess {
+                        root * /data/logs
+                        file_server
+                }
+
                 @portainer host portainer.lan.{$DOMAIN}
                 handle @portainer {
                         reverse_proxy localhost:9000
