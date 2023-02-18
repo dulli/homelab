@@ -9,6 +9,8 @@ RUN apk add --no-cache python3 py3-pip py3-setuptools
 RUN apk add --no-cache curl-dev ffmpeg openssl p7zip sqlite tesseract-ocr
 COPY --from=builder /root/.local /usr
 
+RUN pyload --version | grep -Eo '[0-9]\.[0-9]+.[0-9]+' > /.version
+
 ENV CONFIG_PATH /opt/pyload/config
 ENV DOWNLOAD_PATH /opt/pyload/download
 

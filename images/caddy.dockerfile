@@ -7,4 +7,7 @@ RUN xcaddy build \
 
 FROM caddy:2
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
+
+RUN caddy version | grep -Eo '[0-9]\.[0-9]+.[0-9]+'  > /.version
+
 LABEL org.opencontainers.image.source="https://github.com/dulli/homelab"

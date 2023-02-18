@@ -8,6 +8,8 @@ COPY defaults/snapserver.conf $CONFIG_PATH
 RUN mkdir -p "/usr/share/snapserver"
 RUN wget -qO - "https://github.com/badaix/snapcast/archive/master.tar.gz" | tar -C "/usr/share/snapserver/" -xzv --strip=3 "snapcast-master/server/etc/snapweb"
 
+RUN snapserver --version | grep -Eo '[0-9]\.[0-9]+.[0-9]+' > /.version
+
 EXPOSE 1704
 EXPOSE 1705
 EXPOSE 1780

@@ -15,6 +15,8 @@ FROM debian:11-slim
 RUN apt-get update && apt-get install -y libgl1 libfreetype6 libusb-1.0-0 libglib2.0-0
 COPY --from=builder /usr/local /usr/local
 
+RUN /usr/local/bin/hyperiond --version | grep -Eo '[0-9]\.[0-9]+.[0-9]+' | head -1 > /.version
+
 # Ports: Web, JSON-RPC, Protobuf
 EXPOSE 8090
 EXPOSE 8092
