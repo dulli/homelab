@@ -9,6 +9,7 @@ build image:
     echo "Building local image: {{image}}"
     set -eux
 
+    # Determine the local platform and build the given image for it
     local_platform="$(docker version --format '{{{{.Server.Os}}/{{{{.Server.Arch}}')"
     docker buildx build -f "images/{{image}}.dockerfile" \
         --platform "${local_platform}" "images" \
@@ -20,12 +21,14 @@ publish image platforms="linux/arm64,linux/amd64" registry="ghcr.io/dulli": (bui
     echo "Building, tagging and pushing multi-platform image: {{image}} ({{platforms}})"
     set -eux
 
+    # Retrive and parse the image version
     version_raw=$(docker run --rm --entrypoint cat {{image}}:latest /.version)
-    version=`echo $version_raw | grep -Eo '[0-9]\.[0-9]+.[0-9]+' | head -1`
+    version=`echo $version_raw | grep -Eo '[0-9]\.[0-9]+.[.0-9A-Za-z-]+' | head -1`
     major=`echo $version | cut -d. -f1`
     minor=`echo $version | cut -d. -f2`
-    patch=`echo $version | cut -d. -f3`
+    patch=`echo $version | cut -d. -f3-`
 
+    # Perform the multiplatform build and publish the tagged image
     docker buildx build -f "images/{{image}}.dockerfile" \
         --platform {{platforms}} "images" \
         --tag "{{registry}}/{{image}}:latest" \
@@ -39,6 +42,7 @@ publish-all platforms="linux/arm64,linux/amd64" registry="ghcr.io/dulli":
     echo "Publish all images"
     set -eu
 
+    # Scan the images folder and handle every file it contains as an image
     for image in `ls -p images | grep -v /`; do
         just --justfile {{justfile()}} \
             publish "$(echo $image | cut -d. -f1)" {{platforms}} {{registry}};
