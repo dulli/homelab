@@ -37,14 +37,25 @@ on all the devices/servers I run.
 
 ### Images
 
-`Dockerfiles` are located in the `images` folder and can be build using the
-`build.sh` script, specifying the image name and target platform(s):
+`Dockerfiles` are located in the `images` folder and can be published using the
+`just` command runner, specifying the image name:
 
 ```bash
-./build.sh caddy linux/amd64,linux/arm64
+just publish caddy
 ```
 
-Tags will be automatically set according to the version of the contained service.
+And, optionally, the target platform(s) and/or package registry:
+
+```bash
+just publish caddy linux/amd64,linux/arm64 ghcr.io/dulli
+```
+
+Tags will be automatically set according to the version of the contained
+service. Additionally, all images can be updated at once using
+
+```bash
+just publish-all
+```
 
 ## ToDo
 
