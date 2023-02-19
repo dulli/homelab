@@ -23,10 +23,17 @@ publish image platforms="linux/arm64,linux/amd64" registry="ghcr.io/dulli": (bui
 
     # Retrive and parse the image version
     version_raw=$(docker run --rm --entrypoint cat {{image}}:latest /.version)
-    version=`echo $version_raw | grep -Eo '[0-9]\.[0-9]+.[.0-9A-Za-z-]+' | head -1`
-    major=`echo $version | cut -d. -f1`
-    minor=`echo $version | cut -d. -f2`
-    patch=`echo $version | cut -d. -f3-`
+    version=$(echo "$version_raw" | grep -Eo '[0-9]\.[0-9]+.[.0-9A-Za-z-]+' | head -1)
+    major=$(echo "$version" | cut -d. -f1)
+    minor=$(echo "$version" | cut -d. -f2)
+    patch=$(echo "$version" | cut -d. -f3-)
+
+    # Check whether this version was already published
+    isnew=$(docker manifest inspect "{{registry}}/{{image}}:${major}.${minor}.${patch}" > /dev/null ; echo $?)
+    if [[ $isnew == 0 ]]; then
+        echo "{{registry}}/{{image}}:${major}.${minor}.${patch} already exists"
+        exit 1
+    fi
 
     # Perform the multiplatform build and publish the tagged image
     docker buildx build -f "images/{{image}}.dockerfile" \
