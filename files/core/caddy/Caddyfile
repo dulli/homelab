@@ -4,7 +4,7 @@
         dynamic_dns {
                 provider cloudflare {env.CF_API_TOKEN}
                 domains {
-                        {$DOMAIN} vpn home jelly books photos cash noco flux vault dl cnl
+                        {$DOMAIN} vpn home jelly books photos cash flux vault dl cnl
                 }
                 versions ipv4
         }
@@ -24,18 +24,17 @@
 }
 
 home.{$DOMAIN} {
+        encode zstd gzip
         reverse_proxy localhost:8123
 }
 
 cash.{$DOMAIN} {
+        encode zstd gzip
         reverse_proxy localhost:5006
 }
 
-noco.{$DOMAIN} {
-        reverse_proxy localhost:8080
-}
-
 flux.{$DOMAIN} {
+        encode zstd gzip
         reverse_proxy localhost:36188
 }
 
@@ -45,6 +44,7 @@ vault.{$DOMAIN} {
 }
 
 dl.{$DOMAIN} {
+        encode zstd gzip
         reverse_proxy localhost:8666
 }
 
@@ -57,6 +57,7 @@ cnl.{$DOMAIN} {
 
 jelly.{$DOMAIN} {
         log
+        encode zstd gzip
         reverse_proxy nas:8096
         handle_errors {
                 @502 expression {err.status_code} == 502
@@ -71,6 +72,7 @@ jelly.{$DOMAIN} {
 
 books.{$DOMAIN} {
         log
+        encode zstd gzip
         reverse_proxy nas:8083
         handle_errors {
                 @502 expression {err.status_code} == 502
@@ -85,6 +87,7 @@ books.{$DOMAIN} {
 
 photos.{$DOMAIN} {
         log
+        encode zstd gzip
         reverse_proxy nas:8023
         handle_errors {
                 @502 expression {err.status_code} == 502
