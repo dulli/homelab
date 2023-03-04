@@ -50,7 +50,7 @@ dl.{$DOMAIN} {
 
 cnl.{$DOMAIN} {
         basicauth {
-                pyload $2a$14$XbwsL7fUErCmRiXr2uoa7.LgG10iE5GkEqpMp.Q36tMc85mPvmTy.
+                {env.CNL_AUTH_USER} {env.CNL_AUTH_PASSWD}
         }
         reverse_proxy localhost:9666
 }
