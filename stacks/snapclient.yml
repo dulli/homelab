@@ -3,11 +3,12 @@ services:
   snapclient:
     image: ghcr.io/dulli/snapclient:0
     container_name: snapclient
+    hostname: ${CLIENTNAME}
     restart: unless-stopped
     privileged: true
 
     volumes:
       - /dev/snd:/dev/snd
 
-    # environment:
-    #   SNAPSERVER: ${SNAPSERVER} # optional
+    environment:
+      SNAPSERVER: ${SNAPSERVER}
