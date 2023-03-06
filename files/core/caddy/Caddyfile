@@ -60,7 +60,11 @@ jelly.{$DOMAIN} {
         encode zstd gzip
         reverse_proxy nas:8096
         handle_errors {
-                @502 expression {err.status_code} == 502
+                @502 {
+					expression {err.status_code} == 502
+                        not path /Branding/*
+                        not path /Users/*
+				}
                 handle @502 {
                         wake_on_lan 00:11:32:42:e8:21
                         reverse_proxy nas:8096 {
