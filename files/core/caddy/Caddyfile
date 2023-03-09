@@ -62,8 +62,7 @@ jelly.{$DOMAIN} {
         handle_errors {
                 @502 {
 					expression {err.status_code} == 502
-                        not path /Branding/*
-                        not path /Users/*
+                    path /
 				}
                 handle @502 {
                         wake_on_lan 00:11:32:42:e8:21
