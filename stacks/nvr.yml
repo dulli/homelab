@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   frigate:
-    image: blakeblackshear/frigate:stable
+    image: ghcr.io/blakeblackshear/frigate:stable
     container_name: frigate
     restart: unless-stopped
     privileged: true
@@ -23,7 +23,8 @@ services:
 
     ports:
       - 5000:5000
-      - 1935:1935 # RTMP feeds
+      - 1984:1984
+      - 8555:8555
 
     environment:
       FRIGATE_RTSP_PASSWORD: ${RTSP_PASSWORD}

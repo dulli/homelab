@@ -4,29 +4,57 @@ mqtt:
   password: "{FRIGATE_MQTT_PASSWORD}"
 
 ffmpeg:
-  hwaccel_args: -hwaccel vaapi
-    -hwaccel_device /dev/dri/renderD128
-    -hwaccel_output_format yuv420p
+  hwaccel_args: preset-vaapi
+
+go2rtc:
+  streams:
+    WZ-CCTV:
+      - "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif"
+  webrtc:
+    candidates:
+      - 192.168.188.25:8555
+      - stun:8555
 
 cameras:
   WZ-CCTV:
     ffmpeg:
-      output_args:
-        record: -f segment -segment_time 10 -segment_format mp4 -reset_timestamps 1 -strftime 1 -c:v copy -c:a aac
-        rtmp: -c:v copy -c:a aac -f flv
       inputs:
         - path: "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=1"
           roles:
             - detect
-        - path: "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=0"
+        - path: "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif"
           roles:
             - record
-            - rtmp
-    rtmp:
-      enabled: True
+      output_args:
+        record: preset-record-generic-audio-aac
     detect:
-      enabled: False
+      enabled: True
+      width: 640
+      height: 480
+    snapshots:
+      enabled: True
     record:
       enabled: True
       retain:
+        mode: motion
         days: 5
+
+detectors:
+  ov:
+    type: openvino
+    device: AUTO
+    model:
+      path: /openvino-model/ssdlite_mobilenet_v2.xml
+
+model:
+  width: 300
+  height: 300
+  input_tensor: nhwc
+  input_pixel_format: bgr
+  labelmap_path: /openvino-model/coco_91cl_bkgr.txt
+
+objects:
+  track:
+    - person
+    - dog
+    - cat
