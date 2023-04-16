@@ -1,158 +1,140 @@
 {
-        order wake_on_lan before respond
-        acme_dns cloudflare {env.CF_API_TOKEN}
-        dynamic_dns {
-                provider cloudflare {env.CF_API_TOKEN}
-                domains {
-                        {$DOMAIN} vpn home jelly books photos cash flux vault dl cnl
-                }
-                versions ipv4
-        }
-        log access {
-                output file /data/logs/access.log
-                format json
-                include http.log.access
-        }
+	order wake_on_lan before respond
+	acme_dns cloudflare {env.CF_API_TOKEN}
+	dynamic_dns {
+		provider cloudflare {env.CF_API_TOKEN}
+		domains {
+			{$DOMAIN} dyn *.dyn
+		}
+		versions ipv4
+	}
 }
 
 :80 {
-        root * /srv/static
-        file_server
-        basicauth /auth/* {
-                {env.BASIC_AUTH_USER} {env.BASIC_AUTH_PASSWD}
-        }
+	root * /srv/static
+	file_server
+	basicauth /auth/* {
+		{env.BASIC_AUTH_USER} {env.BASIC_AUTH_PASSWD}
+	}
 }
 
-home.{$DOMAIN} {
-        encode zstd gzip
-        reverse_proxy localhost:8123
-}
+*.dyn.{$DOMAIN}, *.lan.{$DOMAIN} {
+	encode zstd gzip
 
-cash.{$DOMAIN} {
-        encode zstd gzip
-        reverse_proxy localhost:5006
-}
+	@notinternal {
+		host *.lan.{$DOMAIN}
+		not remote_ip 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8 fe80::/64
+	}
+	handle @notinternal {
+		respond "Access denied" 403
+	}
 
-flux.{$DOMAIN} {
-        encode zstd gzip
-        reverse_proxy localhost:36188
-}
+	@ha {
+		host ha.dyn.{$DOMAIN}
+		host ha.lan.{$DOMAIN}
+	}
+	handle @ha {
+		reverse_proxy localhost:8123
+	}
 
-vault.{$DOMAIN} {
-        log
-        reverse_proxy localhost:3011
-}
+	@rss {
+		host rss.dyn.{$DOMAIN}
+		host rss.lan.{$DOMAIN}
+	}
+	handle @rss {
+		reverse_proxy localhost:36188
+	}
 
-dl.{$DOMAIN} {
-        encode zstd gzip
-        reverse_proxy localhost:8666
-}
+	@pw {
+		host pw.dyn.{$DOMAIN}
+		host pw.lan.{$DOMAIN}
+	}
+	handle @pw {
+		reverse_proxy localhost:3011
+	}
 
-cnl.{$DOMAIN} {
-        basicauth {
-                {env.CNL_AUTH_USER} {env.CNL_AUTH_PASSWD}
-        }
-        reverse_proxy localhost:9666
-}
+	@dl {
+		host dl.dyn.{$DOMAIN}
+		host dl.lan.{$DOMAIN}
+	}
+	handle @dl {
+		reverse_proxy localhost:8666
+	}
 
-jelly.{$DOMAIN} {
-        log
-        encode zstd gzip
-        reverse_proxy nas:8096
-        handle_errors {
-                @502 {
-					expression {err.status_code} == 502
-                    path /
-				}
-                handle @502 {
-                        wake_on_lan 00:11:32:42:e8:21
-                        reverse_proxy nas:8096 {
-                                lb_try_duration 120s
-                        }
-                }
-        }
-}
+	@cnl {
+		host cnl.dyn.{$DOMAIN}
+		host cnl.lan.{$DOMAIN}
+	}
+	handle @cnl {
+		basicauth {
+			{env.CNL_AUTH_USER} {env.CNL_AUTH_PASSWD}
+		}
+		reverse_proxy localhost:9666
+	}
 
-books.{$DOMAIN} {
-        log
-        encode zstd gzip
-        reverse_proxy nas:8083
-        handle_errors {
-                @502 expression {err.status_code} == 502
-                handle @502 {
-                        wake_on_lan 00:11:32:42:e8:21
-                        reverse_proxy nas:8083 {
-                                lb_try_duration 120s
-                        }
-                }
-        }
-}
+	@jf {
+		host jf.dyn.{$DOMAIN}
+		host jf.lan.{$DOMAIN}
+	}
+	handle @jf {
+		reverse_proxy nas:8096
+	}
+	handle_errors {
+		@jf502 {
+			host jf.dyn.{$DOMAIN}
+			host jf.lan.{$DOMAIN}
+			expression {err.status_code} == 502
+		}
+		handle @jf502 {
+			wake_on_lan 00:11:32:42:e8:21
+			reverse_proxy nas:8096 {
+				lb_try_duration 120s
+			}
+		}
+	}
 
-photos.{$DOMAIN} {
-        log
-        encode zstd gzip
-        reverse_proxy nas:8023
-        handle_errors {
-                @502 expression {err.status_code} == 502
-                handle @502 {
-                        wake_on_lan 00:11:32:42:e8:21
-                        reverse_proxy nas:8023 {
-                                lb_try_duration 120s
-                        }
-                }
-        }
-}
+	@portainer host portainer.lan.{$DOMAIN}
+	handle @portainer {
+		reverse_proxy localhost:9000
+	}
 
-*.lan.{$DOMAIN} {
-        @internal {
-                remote_ip 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8 fe80::/64
-        }
-        handle @internal {
-                @goaccess_wss host logs-live.lan.{$DOMAIN}
-                handle @goaccess_wss {
-                        reverse_proxy localhost:7890
-                }
+	@snapcast host snapcast.lan.{$DOMAIN}
+	handle @snapcast {
+		reverse_proxy localhost:1780
+	}
 
-                @goaccess host logs.lan.{$DOMAIN}
-                handle @goaccess {
-                        root * /data/logs
-                        file_server
-                }
+	@hyperion host hyperion.lan.{$DOMAIN}
+	handle @hyperion {
+		reverse_proxy localhost:8090
+	}
 
-                @portainer host portainer.lan.{$DOMAIN}
-                handle @portainer {
-                        reverse_proxy localhost:9000
-                }
+	@omv host omv.lan.{$DOMAIN}
+	handle @omv {
+		reverse_proxy nas:5000
+	}
 
-                @snapcast host snapcast.lan.{$DOMAIN}
-                handle @snapcast {
-                        reverse_proxy localhost:1780
-                }
+	@nas host nas.lan.{$DOMAIN}
+	handle @nas {
+		reverse_proxy nas:5001
+	}
 
-                @hyperion host hyperion.lan.{$DOMAIN}
-                handle @hyperion {
-                        reverse_proxy localhost:8090
-                }
+	@vac host wz-vac.lan.{$DOMAIN}
+	handle @vac {
+		reverse_proxy wz-vac:80
+	}
 
-                @omv host omv.lan.{$DOMAIN}
-                handle @omv {
-                        reverse_proxy nas:5000
-                }
+	@docs host docs.lan.{$DOMAIN}
+	handle @docs {
+		reverse_proxy localhost:8010
+	}
 
-                @nas host nas.lan.{$DOMAIN}
-                handle @nas {
-                        reverse_proxy nas:5001
-                }
+	@budget host budget.lan.{$DOMAIN}
+	handle @budget {
+		reverse_proxy localhost:5006
+	}
 
-                @vac host wz-vac.lan.{$DOMAIN}
-                handle @vac {
-                        reverse_proxy wz-vac:80
-                }
-
-                @kodi host kodi.lan.{$DOMAIN}
-                handle @kodi {
-                        reverse_proxy wz-htpc:8080
-                }
-        }
-        respond "Access denied" 403
+	@books host books.lan.{$DOMAIN}
+	handle @books {
+		reverse_proxy nas:8083
+	}
 }
