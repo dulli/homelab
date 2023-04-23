@@ -7,7 +7,6 @@ services:
 
     networks:
       - proxy
-      - backend
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/pyload:/opt/pyload/config
@@ -21,8 +20,7 @@ services:
     depends_on:
       - pyload
 
-    networks:
-      - backend
+    network_mode: none
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/backups:/backup
@@ -40,8 +38,5 @@ services:
       - CONTAINER_ENABLE_MONITORING=FALSE
 
 networks:
-  backend:
-    driver: bridge
-    internal: true
   proxy:
     external: true
