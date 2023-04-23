@@ -150,4 +150,9 @@
 	handle @nvr {
 		reverse_proxy frigate:5000
 	}
+
+	@rtc host rtc.lan.{$DOMAIN}
+	handle @rtc {
+		reverse_proxy frigate:1984
+	}
 }
