@@ -5,7 +5,12 @@ services:
     container_name: mqtt
     restart: unless-stopped
 
-    network_mode: host
+    networks:
+      - mqtt
+
+    ports:
+      - 1883:1883
+      - 9001:9001
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/homeassistant/mqtt/config:/mosquitto/config
@@ -20,7 +25,11 @@ services:
     depends_on:
       - mqtt
 
-    network_mode: host
+    networks:
+      - proxy
+
+    ports:
+      - 8123:8123
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/homeassistant/config:/config
@@ -36,6 +45,8 @@ services:
     depends_on:
       - homeassistant
 
+    network_mode: none
+
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/backups:/backup
       - ${DOCKER_DATA_PATH:-/var/docker}/homeassistant/config/home-assistant_v2.db:/home-assistant.sqlite3
@@ -50,3 +61,13 @@ services:
       - COMPRESSION=GZ
       - GZ_RSYNCABLE=TRUE
       - CONTAINER_ENABLE_MONITORING=FALSE
+
+networks:
+  mqtt:
+    name: mqtt
+    external: false
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: docker-mqtt
+  proxy:
+    external: true
