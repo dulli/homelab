@@ -5,8 +5,12 @@ services:
     container_name: actual-server
     restart: unless-stopped
 
-    ports:
-      - 5006:5006
+    networks:
+      - proxy
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/actual/server:/data
+
+networks:
+  proxy:
+    external: true

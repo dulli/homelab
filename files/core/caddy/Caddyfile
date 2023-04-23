@@ -21,6 +21,14 @@
 *.dyn.{$DOMAIN}, *.lan.{$DOMAIN} {
 	encode zstd gzip
 
+	@test {
+		host test.dyn.{$DOMAIN}
+		host test.lan.{$DOMAIN}
+	}
+	handle @test {
+		respond OK
+	}
+
 	@notinternal {
 		host *.lan.{$DOMAIN}
 		not remote_ip 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8 fe80::/64
@@ -34,7 +42,7 @@
 		host ha.lan.{$DOMAIN}
 	}
 	handle @ha {
-		reverse_proxy localhost:8123
+		reverse_proxy core:8123
 	}
 
 	@rss {
@@ -42,7 +50,7 @@
 		host rss.lan.{$DOMAIN}
 	}
 	handle @rss {
-		reverse_proxy localhost:36188
+		reverse_proxy miniflux:8080
 	}
 
 	@pw {
@@ -50,7 +58,7 @@
 		host pw.lan.{$DOMAIN}
 	}
 	handle @pw {
-		reverse_proxy localhost:3011
+		reverse_proxy vaultwarden:3011
 	}
 
 	@dl {
@@ -58,7 +66,7 @@
 		host dl.lan.{$DOMAIN}
 	}
 	handle @dl {
-		reverse_proxy localhost:8666
+		reverse_proxy pyload-ng:8000
 	}
 
 	@cnl {
@@ -69,7 +77,7 @@
 		basicauth {
 			{env.CNL_AUTH_USER} {env.CNL_AUTH_PASSWD}
 		}
-		reverse_proxy localhost:9666
+		reverse_proxy pyload-ng:9666
 	}
 
 	@jf {
@@ -86,7 +94,7 @@
 			expression {err.status_code} == 502
 		}
 		handle @jf502 {
-			wake_on_lan 00:11:32:42:e8:21
+			wake_on_lan 00:11:32:42:e8:21 192.168.188.255:9
 			reverse_proxy nas:8096 {
 				lb_try_duration 120s
 			}
@@ -95,17 +103,17 @@
 
 	@portainer host portainer.lan.{$DOMAIN}
 	handle @portainer {
-		reverse_proxy localhost:9000
+		reverse_proxy core:9000
 	}
 
 	@snapcast host snapcast.lan.{$DOMAIN}
 	handle @snapcast {
-		reverse_proxy localhost:1780
+		reverse_proxy core:1780
 	}
 
 	@hyperion host hyperion.lan.{$DOMAIN}
 	handle @hyperion {
-		reverse_proxy localhost:8090
+		reverse_proxy hyperion-ng:8090
 	}
 
 	@omv host omv.lan.{$DOMAIN}
@@ -125,16 +133,21 @@
 
 	@docs host docs.lan.{$DOMAIN}
 	handle @docs {
-		reverse_proxy localhost:8010
+		reverse_proxy paperless:8000
 	}
 
 	@budget host budget.lan.{$DOMAIN}
 	handle @budget {
-		reverse_proxy localhost:5006
+		reverse_proxy actual-server:5006
 	}
 
 	@books host books.lan.{$DOMAIN}
 	handle @books {
 		reverse_proxy nas:8083
+	}
+
+	@nvr host nvr.lan.{$DOMAIN}
+	handle @nvr {
+		reverse_proxy frigate:5000
 	}
 }

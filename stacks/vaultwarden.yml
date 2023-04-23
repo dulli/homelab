@@ -6,9 +6,9 @@ services:
     restart: always
     user: ${UID:-1000}:${GID:-1000}
 
-    ports:
-      - 3011:3011
-      - 3012:3012
+    networks:
+      - proxy
+      - backend
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/vaultwarden:/data
@@ -27,6 +27,9 @@ services:
     depends_on:
       - vaultwarden
 
+    networks:
+      - backend
+
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/backups:/backup
       - ${DOCKER_DATA_PATH:-/var/docker}/vaultwarden/db.sqlite3:/vaultwarden.sqlite3
@@ -41,3 +44,10 @@ services:
       - COMPRESSION=GZ
       - GZ_RSYNCABLE=TRUE
       - CONTAINER_ENABLE_MONITORING=FALSE
+
+networks:
+  backend:
+    driver: bridge
+    internal: true
+  proxy:
+    external: true

@@ -9,8 +9,6 @@ services:
 
     devices:
       - /dev/dri/renderD128 # for intel hwaccel
-      #- /dev/bus/usb:/dev/bus/usb # passes the USB Coral
-      #- /dev/apex_0:/dev/apex_0 # passes a PCIe Coral, follow driver instructions here https://coral.ai/docs/m2/get-started/#2a-on-linux
 
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -21,6 +19,9 @@ services:
         tmpfs:
           size: 1000000000
 
+    networks:
+      - proxy
+
     ports:
       - 5000:5000
       - 1984:1984
@@ -30,3 +31,7 @@ services:
       FRIGATE_RTSP_PASSWORD: ${RTSP_PASSWORD}
       FRIGATE_MQTT_PASSWORD: ${MQTT_PASSWORD}
       LIBVA_DRIVER_NAME: "i965"
+
+networks:
+  proxy:
+    external: true

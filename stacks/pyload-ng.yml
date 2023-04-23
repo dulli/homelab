@@ -4,15 +4,15 @@ services:
     image: ghcr.io/dulli/pyload-ng:0
     container_name: pyload-ng
     restart: unless-stopped
-    user: ${UID:-1000}:${GID:-1000}
 
-    ports:
-      - 8666:8000 # Webinterface
-      - 9666:9666 # Click 'N' Load
+    networks:
+      - proxy
+      - backend
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/pyload:/opt/pyload/config
-      - ${DOWNLOAD_PATH:-/var/pyload}:/opt/pyload/downloads
+      - ${DOWNLOAD_PATH:-/var/pyload}:/opt/pyload/download
+      - ${DOCKER_DATA_PATH:-/var/docker}/pyload/themes:/usr/lib/python3.11/site-packages/pyload/webui/app/themes
 
   pyload-backup:
     image: tiredofit/db-backup
@@ -20,6 +20,9 @@ services:
     restart: always
     depends_on:
       - pyload
+
+    networks:
+      - backend
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/backups:/backup
@@ -35,3 +38,10 @@ services:
       - COMPRESSION=GZ
       - GZ_RSYNCABLE=TRUE
       - CONTAINER_ENABLE_MONITORING=FALSE
+
+networks:
+  backend:
+    driver: bridge
+    internal: true
+  proxy:
+    external: true

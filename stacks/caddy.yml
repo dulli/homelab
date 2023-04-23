@@ -5,7 +5,12 @@ services:
     container_name: caddy
     restart: unless-stopped
 
-    network_mode: host
+    networks:
+      - proxy
+
+    ports:
+      - 80:80
+      - 443:443
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/caddy/Caddyfile:/etc/caddy/Caddyfile
@@ -20,3 +25,21 @@ services:
       CNL_AUTH_USER: ${CNL_AUTH_USER}
       CNL_AUTH_PASSWD: ${CNL_AUTH_PASSWD}
       DOMAIN: ${DOMAIN}
+
+networks:
+  proxy:
+    name: proxy
+    external: false
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.100.0.0/16
+    driver_opts:
+      com.docker.network.bridge.name: docker-proxy
+      net.ipv4.icmp_echo_ignore_broadcasts: 0
+      net.ipv4.conf.all.bc_forwarding: 1
+# For WOL to work with the proxy network, you need to set the following commands at system level:
+# sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=0
+# sudo sysctl -w net.ipv4.conf.all.bc_forwarding=1
+# sudo sysctl -w net.ipv4.conf.docker-proxy.bc_forwarding=1

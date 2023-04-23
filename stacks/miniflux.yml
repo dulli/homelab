@@ -6,12 +6,15 @@ services:
     restart: always
     user: ${UID:-1000}:${GID:-1000}
 
+    networks:
+      - backend
+
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/miniflux/db:/var/lib/postgresql/data
 
     environment:
-      POSTGRES_USER: miniflux
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      - POSTGRES_USER=miniflux
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
 
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "miniflux"]
@@ -26,16 +29,26 @@ services:
     depends_on:
       - db
 
-    ports:
-      - "${PORT}:8080"
+    networks:
+      - proxy
+      - backend
 
     environment:
-      DATABASE_URL: postgres://miniflux:${DB_PASSWORD}@db/miniflux?sslmode=disable
-      RUN_MIGRATIONS: 1
-      CREATE_ADMIN: 1
-      ADMIN_USERNAME: ${MINIFLUX_USER}
-      ADMIN_PASSWORD: ${MINIFLUX_PASSWORD}
-      BASE_URL: ${MINIFLUX_URL}
+      - DATABASE_URL=postgres://miniflux:${DB_PASSWORD}@db/miniflux?sslmode=disable
+      - RUN_MIGRATIONS=1
+      - CREATE_ADMIN=1
+      - POLLING_FREQUENCY=5
+      - ADMIN_USERNAME=${MINIFLUX_USER}
+      - ADMIN_PASSWORD=${MINIFLUX_PASSWORD}
+      - BASE_URL=${MINIFLUX_URL}
+      - LISTEN_ADDR=0.0.0.0:8080
 
     healthcheck:
       test: ["CMD", "/usr/bin/miniflux", "-healthcheck", "auto"]
+
+networks:
+  backend:
+    driver: bridge
+    internal: true
+  proxy:
+    external: true
