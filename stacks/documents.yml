@@ -1,0 +1,83 @@
+version: "3.4"
+services:
+  broker:
+    image: docker.io/library/redis:7
+    container_name: paperless-redis
+    restart: unless-stopped
+
+    networks:
+      - backend
+
+    volumes:
+      - redisdata:/data
+
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    restart: unless-stopped
+    depends_on:
+      - broker
+      - gotenberg
+      - tika
+
+    networks:
+      - proxy
+      - backend
+
+    healthcheck:
+      test:
+        ["CMD", "curl", "-fs", "-S", "--max-time", "2", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/paperless/data:/usr/src/paperless/data
+      - ${DOCKER_DATA_PATH:-/var/docker}/paperless/media:/usr/src/paperless/media
+      - ${DOCKER_DATA_PATH:-/var/docker}/paperless/export:/usr/src/paperless/export
+      - ${DOCKER_DATA_PATH:-/var/docker}/paperless/consume:/usr/src/paperless/consume
+
+    environment:
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_TIKA_ENABLED: 1
+      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000
+      PAPERLESS_TIKA_ENDPOINT: http://tika:9998
+      PAPERLESS_OCR_LANGUAGE: deu
+      PAPERLESS_URL: https://docs.lan.${DOMAIN}
+      PAPERLESS_SECRET_KEY: ${SECRET_KEY}
+      PAPERLESS_TIME_ZONE: Europe/Berlin
+      #USERMAP_UID: 1000
+      #USERMAP_GID: 1000
+
+  gotenberg:
+    image: docker.io/gotenberg/gotenberg:7.8
+    container_name: paperless-gotenberg
+    restart: unless-stopped
+
+    networks:
+      - backend
+
+    # The gotenberg chromium route is used to convert .eml files. We do not
+    # want to allow external content like tracking pixels or even javascript.
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+      - "--chromium-allow-list=file:///tmp/.*"
+
+  tika:
+    networks:
+      - backend
+
+    image: ghcr.io/paperless-ngx/tika:latest
+    container_name: paperless-tika
+    restart: unless-stopped
+
+volumes:
+  redisdata:
+
+networks:
+  backend:
+    driver: bridge
+    internal: true
+  proxy:
+    external: true
