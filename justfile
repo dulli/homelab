@@ -47,7 +47,7 @@ publish image platforms="linux/arm64,linux/amd64" registry="ghcr.io/dulli": (bui
 publish-all platforms="linux/arm64,linux/amd64" registry="ghcr.io/dulli":
     #!/usr/bin/env bash
     echo "Publish all images"
-    set -eu
+    set -u
 
     # Scan the images folder and handle every file it contains as an image
     for image in `ls -p images | grep -v /`; do
