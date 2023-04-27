@@ -6,9 +6,20 @@ services:
     restart: unless-stopped
 
     network_mode: host
+    # networks:
+    #   - proxy
 
-    # volumes:
-    #   - ${DOCKER_DATA_PATH:-/var/docker}/snapcast/server:/config
+    # ports:
+    #   - 1704
+    #   - 1705
+    #   - 1706
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/snapcast/server:/root/.config/snapserver
 
     # environment:
     #   CONFIG_PATH: "/config/snapserver.conf" # optional
+
+networks:
+  proxy:
+    external: true

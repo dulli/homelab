@@ -1,0 +1,27 @@
+version: "3.5"
+services:
+  avahi:
+    container_name: avahi-mdns
+    hostname: docker-avahi
+    image: ghcr.io/dulli/avahi-reflector:latest
+    restart: always
+
+    networks:
+      proxy:
+      phy:
+        ipv4_address: ${PHY_ADDRESS}
+
+networks:
+  phy:
+    name: phy
+    external: false
+    driver: macvlan
+    ipam:
+      config:
+        - subnet: ${PHY_SUBNET}
+          gateway: ${PHY_GATEWAY}
+    driver_opts:
+      parent: eno1.10
+      com.docker.network.bridge.name: docker-phy
+  proxy:
+    external: true
