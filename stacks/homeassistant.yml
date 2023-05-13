@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
 
     networks:
-      - mqtt
+      - proxy
 
     ports:
       - 1883:1883
@@ -36,7 +36,30 @@ services:
       - ${DOCKER_DATA_PATH:-/var/docker}/homeassistant/ssh:/root/.ssh
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/localtime:/etc/localtime:ro
-      - /dev/serial/by-id:/dev/serial/by-id
+
+  homeassistant-piper:
+    image: rhasspy/wyoming-piper
+    container_name: homeassistant-piper
+    restart: always
+    command: --voice de-thorsten-low
+
+    networks:
+      - proxy
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/homeassistant/piper:/data
+
+  homeassistant-whisper:
+    image: rhasspy/wyoming-whisper
+    container_name: homeassistant-whisper
+    restart: always
+    command: --model base-int8 --language de
+
+    networks:
+      - proxy
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/homeassistant/whisper:/data
 
   homeassistant-backup:
     image: tiredofit/db-backup
@@ -63,11 +86,5 @@ services:
       - CONTAINER_ENABLE_MONITORING=FALSE
 
 networks:
-  mqtt:
-    name: mqtt
-    external: false
-    driver: bridge
-    driver_opts:
-      com.docker.network.bridge.name: docker-mqtt
   proxy:
     external: true
