@@ -21,7 +21,6 @@ services:
     image: ghcr.io/home-assistant/home-assistant:stable
     container_name: homeassistant
     restart: unless-stopped
-    privileged: true
     depends_on:
       - mqtt
 
@@ -30,6 +29,9 @@ services:
 
     ports:
       - 8123:8123
+
+    devices:
+      - /dev/ttyUSB0
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/homeassistant/config:/config

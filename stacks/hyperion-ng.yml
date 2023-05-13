@@ -4,7 +4,6 @@ services:
     image: ghcr.io/dulli/hyperion-ng:2
     container_name: hyperion-ng
     restart: unless-stopped
-    privileged: true
 
     networks:
       - proxy
@@ -15,9 +14,12 @@ services:
       - 19444:19444 # JSON-RPC
       - 19445:19445 # Protobuf
 
+    devices:
+      #- /dev/serial/by-id/${SERIAL_ID}:/dev/ttyUSB0
+      - /dev/ttyUSB1
+
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/hyperion:/config
-      - /dev/serial/by-id/${SERIAL_ID}:/dev/ttyUSB0
 
     # environment:
     #   - CONFIG_PATH=${CONFIG_PATH}
