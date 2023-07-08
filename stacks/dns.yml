@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+  snapserver:
+    image: unbound:latest
+    container_name: unbound
+    restart: unless-stopped
+
+    networks:
+      - proxy
+
+    ports:
+      - 53:5300/tcp
+      - 53:5300/udp
+      - 853:8530/tcp
+      - 853:8530/udp
+
+    volumes:
+      - ${TLS_CERT_PATH}.key:/etc/unbound/tls/dns.key
+      - ${TLS_CERT_PATH}.crt:/etc/unbound/tls/dns.crt
+    #  - ${DOCKER_DATA_PATH:-/var/docker}/unbound:/etc/unbound
+
+networks:
+  proxy:
+    external: true
