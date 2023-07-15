@@ -6,7 +6,8 @@
 		domains {
 			{$DOMAIN} dyn *.dyn
 		}
-		versions ipv4
+		versions ipv6
+		ip_source simple_http https://api6.ipify.org
 	}
 }
 
@@ -18,16 +19,12 @@
 	}
 }
 
+dns.dulli.me {
+	respond OK
+}
+
 *.dyn.{$DOMAIN}, *.lan.{$DOMAIN} {
 	encode zstd gzip
-
-	@test {
-		host test.dyn.{$DOMAIN}
-		host test.lan.{$DOMAIN}
-	}
-	handle @test {
-		respond OK
-	}
 
 	@notinternal {
 		host *.lan.{$DOMAIN}
