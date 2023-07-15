@@ -3,6 +3,10 @@
 default:
     @just --list --unsorted --justfile {{justfile()}}
 
+# Clean the docker build cache
+clean:
+    docker builder prune --all --force
+
 # Build a local image
 build image:
     #!/usr/bin/env bash
@@ -13,7 +17,7 @@ build image:
     local_platform="$(docker version --format '{{{{.Server.Os}}/{{{{.Server.Arch}}')"
     docker buildx build -f "images/{{image}}.dockerfile" \
         --platform "${local_platform}" "images" \
-        --tag "{{image}}:latest" --load --no-cache
+        --tag "{{image}}:latest" --load
 
 # Build, automatically tag the service version, and push a multi-platform image
 publish image platforms="linux/arm64,linux/amd64" registry="ghcr.io/dulli": (build image)
@@ -41,7 +45,7 @@ publish image platforms="linux/arm64,linux/amd64" registry="ghcr.io/dulli": (bui
         --tag "{{registry}}/{{image}}:latest" \
         --tag "{{registry}}/{{image}}:${major}" \
         --tag "{{registry}}/{{image}}:${major}.${minor}" \
-        --tag "{{registry}}/{{image}}:${major}.${minor}.${patch}" --push --no-cache
+        --tag "{{registry}}/{{image}}:${major}.${minor}.${patch}" --push
 
 # (Re-)build all images and publish them
 publish-all platforms="linux/arm64,linux/amd64" registry="ghcr.io/dulli":
