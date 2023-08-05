@@ -27,7 +27,7 @@ publish image platforms="linux/arm64,linux/amd64" registry="ghcr.io/dulli": (bui
 
     # Retrive and parse the image version
     version_raw=$(docker run --rm --entrypoint cat {{image}}:latest /.version)
-    version=$(echo "$version_raw" | grep -Eo '[0-9]\.[0-9]+.[.0-9A-Za-z-]+' | head -1)
+    version=$(echo "$version_raw" | grep -Eo '[0-9]+\.[0-9]+.?[.0-9A-Za-z-]*' | head -1)
     major=$(echo "$version" | cut -d. -f1)
     minor=$(echo "$version" | cut -d. -f2)
     patch=$(echo "$version" | cut -d. -f3-)
