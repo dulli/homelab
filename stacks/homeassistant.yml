@@ -30,14 +30,14 @@ services:
     ports:
       - 8123:8123
 
-    devices:
-      - /dev/ttyUSB0
-
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/homeassistant/config:/config
       - ${DOCKER_DATA_PATH:-/var/docker}/homeassistant/ssh:/root/.ssh
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/localtime:/etc/localtime:ro
+    devices:
+      - /dev/serial/by-id/${SERIAL_ID}
+      #- /dev/ttyUSB0
 
   homeassistant-piper:
     image: rhasspy/wyoming-piper

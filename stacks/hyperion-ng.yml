@@ -14,12 +14,12 @@ services:
       - 19444:19444 # JSON-RPC
       - 19445:19445 # Protobuf
 
-    devices:
-      #- /dev/serial/by-id/${SERIAL_ID}:/dev/ttyUSB0
-      - /dev/ttyUSB1
-
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/hyperion:/config
+      - /dev/serial/by-id/${SERIAL_ID}:/dev/ttyUSB0
+
+    devices:
+      - /dev/serial/by-id/${SERIAL_ID}
 
     # environment:
     #   - CONFIG_PATH=${CONFIG_PATH}
