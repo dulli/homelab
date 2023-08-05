@@ -9,6 +9,7 @@ services:
 
     devices:
       - /dev/dri/renderD128 # for intel hwaccel
+      - /dev/apex_0 # for PCIe Coral
 
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -23,7 +24,6 @@ services:
       - proxy
 
     ports:
-      - 5000:5000
       - 1984:1984
       - 8555:8555
 
