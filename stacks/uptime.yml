@@ -1,0 +1,16 @@
+version: "3.3"
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: unless-stopped
+
+    networks:
+      - proxy
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/uptime-kuma/data:/app/data
+
+networks:
+  proxy:
+    external: true
