@@ -6,6 +6,8 @@ services:
     restart: unless-stopped
     command: --cleanup --schedule "0 0 4 * * *"
 
+    network_mode: bridge
+
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/localtime:/etc/localtime:ro

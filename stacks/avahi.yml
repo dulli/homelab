@@ -3,7 +3,7 @@ services:
   avahi:
     container_name: avahi-mdns
     hostname: docker-avahi
-    image: ghcr.io/dulli/avahi-reflector:latest
+    image: ghcr.io/dulli/avahi-reflector:0
     restart: always
 
     networks:
