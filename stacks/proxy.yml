@@ -7,7 +7,6 @@ services:
 
     networks:
       - proxy
-      - ipv6
 
     ports:
       - 80:80
@@ -35,25 +34,18 @@ networks:
   proxy:
     name: proxy
     external: false
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.100.0.0/16
-    driver_opts:
-      com.docker.network.bridge.name: docker-proxy
-      net.ipv4.icmp_echo_ignore_broadcasts: 0
-      net.ipv4.conf.all.bc_forwarding: 1
-
-  ipv6:
-    name: ipv6
-    external: false
     enable_ipv6: true
     driver: bridge
     ipam:
       driver: default
       config:
-        - subnet: fd02:fc5:9bd7::/48
+        - subnet: ${SUBNET_IPV4:-172.100.0.0/16}
+        - subnet: ${SUBNET_IPV6:-fd02:fc5:9bd7::/48}
+
+    driver_opts:
+      com.docker.network.bridge.name: docker-proxy
+      net.ipv4.icmp_echo_ignore_broadcasts: 0
+      net.ipv4.conf.all.bc_forwarding: 1
 # For WOL to work with the proxy network, you need to set the following commands at system level:
 # sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=0
 # sudo sysctl -w net.ipv4.conf.all.bc_forwarding=1
