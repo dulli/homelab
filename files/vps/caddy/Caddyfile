@@ -1,0 +1,37 @@
+{
+	acme_dns cloudflare {env.CF_API_TOKEN}
+}
+
+vps.{$DOMAIN} {
+	root * /srv/static
+	file_server
+	basicauth /auth/* {
+		{env.BASIC_AUTH_USER} {env.BASIC_AUTH_PASSWD}
+	}
+}
+
+import cnames/*
+
+*.vps.{$DOMAIN} {
+	encode zstd gzip
+
+	@rss host rss.vps.{$DOMAIN}
+	handle @rss {
+		reverse_proxy miniflux:8080
+	}
+
+	@status host status.vps.{$DOMAIN}
+	handle @status {
+		reverse_proxy uptime-kuma:3001
+	}
+
+	@vpn host vpn.vps.{$DOMAIN}
+	handle @vpn {
+		reverse_proxy firezone:13000
+	}
+
+	@wa host wa.vps.{$DOMAIN}
+	handle @wa {
+		reverse_proxy umami:3000
+	}
+}
