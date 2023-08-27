@@ -46,8 +46,8 @@ services:
       PAPERLESS_URL: https://docs.lan.${DOMAIN}
       PAPERLESS_SECRET_KEY: ${SECRET_KEY}
       PAPERLESS_TIME_ZONE: Europe/Berlin
-      #USERMAP_UID: 1000
-      #USERMAP_GID: 1000
+      #USERMAP_UID: ${UID:-1000}
+      #USERMAP_GID: ${GID:-1000}
 
   gotenberg:
     image: docker.io/gotenberg/gotenberg:7.8
@@ -65,12 +65,31 @@ services:
       - "--chromium-allow-list=file:///tmp/.*"
 
   tika:
-    networks:
-      - backend
-
     image: ghcr.io/paperless-ngx/tika:latest
     container_name: paperless-tika
     restart: unless-stopped
+
+    networks:
+      - backend
+
+  rclone:
+    image: rclone/rclone:latest
+    container_name: paperless-rclone
+    restart: unless-stopped
+    depends_on:
+      - webserver
+
+    entrypoint: "/bin/sh"
+    command:
+      - "-c"
+      - '(echo "* * * * * if ! pidof rclone; then rclone sync --dry-run /data/archive remote:${REMOTE_PATH}; fi" | crontab -) && crond -f'
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/paperless/rclone:/config/rclone
+      - ${DOCKER_DATA_PATH:-/var/docker}/paperless/media/documents/archive:/data/archive:ro
+
+    networks:
+      - proxy
 
 volumes:
   redisdata:
