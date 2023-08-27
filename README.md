@@ -60,7 +60,7 @@ just publish-all
 ## ToDo
 
 - [x] Add scripts to (re-)build all images
-- [ ] Add scripts to automate the initial setup
+- [x] Add scripts to automate the initial setup
 - [ ] Explore (or create) alternatives to `Portainer` for something
       less-interactive and more automated
 - [ ] Manage secrets
