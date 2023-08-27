@@ -9,7 +9,7 @@ sudo timedatectl set-timezone Europe/Berlin
 
 # APT
 sudo apt-get update
-sudo apt-get install git wget htop ca-certificates curl gnupg rsync tree ntp tmux iptables iptables-persistent -y
+sudo apt-get install git wget htop ca-certificates curl gnupg rsync tree ntp tmux iptables iptables-persistent unattended-upgrades -y
 
 # Passwordless sudo
 echo "$DEF_USER ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/$DEF_USER
