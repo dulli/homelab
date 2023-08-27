@@ -1,0 +1,6 @@
+[Automount]
+Where=/mnt/nas/Medien
+TimeoutIdleSec=1min
+
+[Install]
+WantedBy=multi-user.target

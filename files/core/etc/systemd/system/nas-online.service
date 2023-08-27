@@ -1,0 +1,12 @@
+  GNU nano 7.2                                                                                        /etc/systemd/system/nas-online.service *                                                                                               [Unit]
+Description=Continuously check if the host is up, otherwise try WOL on start
+After=network.target network-online.target
+PartOf=mnt-nas.mount
+
+[Service]
+Environment=HOST=nas
+Environment=PORT=22
+Environment=MAC=00:11:32:42:e8:21
+
+ExecStartPre=/bin/sh -c 'for n in `seq 1 6`; do nc -z ${HOST} ${PORT} && break || etherwake $MAC && sleep 10; done'
+ExecStart=/bin/sh -c 'while :; do (nc -z -w 1 ${HOST} ${PORT} && sleep 100) || break; done'

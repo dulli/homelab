@@ -82,20 +82,7 @@ dns.dulli.me {
 		host jf.lan.{$DOMAIN}
 	}
 	handle @jf {
-		reverse_proxy nas:8096
-	}
-	handle_errors {
-		@jf502 {
-			host jf.dyn.{$DOMAIN}
-			host jf.lan.{$DOMAIN}
-			expression {err.status_code} == 502
-		}
-		handle @jf502 {
-			wake_on_lan 00:11:32:42:e8:21 192.168.188.255:9
-			reverse_proxy nas:8096 {
-				lb_try_duration 120s
-			}
-		}
+		reverse_proxy jellyfin:8096
 	}
 
 	@portainer host portainer.lan.{$DOMAIN}

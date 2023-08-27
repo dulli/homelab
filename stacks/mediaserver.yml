@@ -4,14 +4,22 @@ services:
     image: jellyfin/jellyfin:latest
     container_name: jellyfin
     restart: unless-stopped
-    user: 2000:100
+    user: 1510:1500
+    group_add:
+      - "106" # Change this to match your "render" host group id and remove this comment
 
-    network_mode: host
+    networks:
+      - proxy
+
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/jellyfin/config:/config
       - ${DOCKER_DATA_PATH:-/var/docker}/jellyfin/cache:/cache
-      - ${JELLYFIN_MEDIA_PATH}:/media
+      - ${DOCKER_DATA_PATH:-/var/docker}/jellyfin/web:/jellyfin/jellyfin-web
+      - ${JELLYFIN_MEDIA_PATH:-/srv/media}:/media
+      - /mnt/nas:/mnt/nas:shared
 
     environment:
       JELLYFIN_PublishedServerUrl: ${JELLYFIN_URL}
@@ -22,6 +30,8 @@ services:
     restart: always
     depends_on:
       - jellyfin
+
+    network_mode: none
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/backups:/backup
@@ -37,3 +47,7 @@ services:
       - COMPRESSION=GZ
       - GZ_RSYNCABLE=TRUE
       - CONTAINER_ENABLE_MONITORING=FALSE
+
+networks:
+  proxy:
+    external: true

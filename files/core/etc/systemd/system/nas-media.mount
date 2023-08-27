@@ -1,0 +1,10 @@
+[Unit]
+Description=Mount NAS media folder on your server
+After=nas-online.service
+Requires=nas-online.service
+
+[Mount]
+What=//nas/Medien
+Where=/mnt/nas/Medien
+Type=cifs
+Options=defaults,noauto,nofail,credentials=/root/.smbcredentials,uid=1500,gid=1500
