@@ -1,0 +1,16 @@
+version: "3.3"
+services:
+  tinypin:
+    image: slynn1324/tinypin
+    container_name: tinypin
+    restart: unless-stopped
+
+    networks:
+      - proxy
+
+    volumes:
+      - "/var/docker/tinypin/data:/data"
+
+networks:
+  proxy:
+    external: true

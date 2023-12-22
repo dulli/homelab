@@ -144,4 +144,14 @@ dns.{$DOMAIN} {
 	handle @recipes {
 		reverse_proxy mealie-frontend:3000
 	}
+
+	@pins host pins.lan.{$DOMAIN}
+	handle @pins {
+		reverse_proxy tinypin:3000
+	}
+
+	@pdf host pdf.lan.{$DOMAIN}
+	handle @pdf {
+		reverse_proxy stirling-pdf:8080
+	}
 }
