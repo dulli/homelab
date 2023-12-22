@@ -1,0 +1,70 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+http:
+    use_x_forwarded_for: true
+    trusted_proxies:
+        - 192.168.188.0/24
+        - 127.0.0.1
+        - 172.0.0.0/8
+        - ::1
+
+frontend:
+    themes: !include themes.yaml
+
+tts:
+    - platform: google_translate
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+
+ffmpeg:
+
+zha:
+    database_path: /config/zigbee.db
+    zigpy_config:
+        ota:
+            ikea_provider: true
+            ledvance_provider: true
+
+switch:
+    - platform: wake_on_lan
+      name: NAS
+      mac: 00-11-32-42-E8-21
+      broadcast_address: 192.168.188.255
+      host: nas
+      turn_off:
+          service: shell_command.turn_off_nas
+    - platform: wake_on_lan
+      name: mediabox
+      mac: C4-54-44-DF-3C-46
+      broadcast_address: 192.168.188.255
+      host: mediabox
+      turn_off:
+          service: shell_command.turn_off_mediabox
+
+shell_command:
+    turn_off_nas: "ssh root@nas poweroff 2> /config/ssh.log"
+    turn_off_mediabox: "ssh martin@mediabox sudo systemctl suspend> /config/ssh.log"
+
+sensor:
+    - platform: systemmonitor
+      resources:
+          - type: disk_use_percent
+            arg: /home
+          - type: memory_free
+          - type: load_5m
+          - type: last_boot
+
+monitor_docker:
+    - name: Docker
+      monitored_conditions:
+          - version
+          - containers_running
+          - containers_total
+          - state
+          - uptime
+          - 1cpu_percentage
+          - memory
+          - allinone
