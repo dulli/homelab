@@ -24,6 +24,24 @@ services:
     environment:
       JELLYFIN_PublishedServerUrl: ${JELLYFIN_URL}
 
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    restart: unless-stopped
+    user: 1510:1500
+    depends_on:
+      - jellyfin
+
+    networks:
+      - proxy
+
+    volumes:
+      - /var/docker/jellyseerr/config:/app/config
+
+    environment:
+      LOG_LEVEL: debug
+      TZ: Europe/Berlin
+
   jellyfin-backup:
     image: tiredofit/db-backup
     container_name: jellyfin-backup
@@ -36,6 +54,7 @@ services:
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/.backups:/backup
       - ${DOCKER_DATA_PATH:-/var/docker}/jellyfin/config/data/jellyfin.db:/jellyfin.sqlite3
+      - ${DOCKER_DATA_PATH:-/var/docker}/jellyseerr/config/db/db.sqlite3:/jellyseerr.sqlite3
 
     environment:
       USER_DBBACKUP: ${UID:-1000}

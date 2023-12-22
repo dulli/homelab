@@ -85,6 +85,11 @@ dns.{$DOMAIN} {
 		reverse_proxy jellyfin:8096
 	}
 
+	@js host js.lan.{$DOMAIN}
+	handle @js {
+		reverse_proxy jellyseerr:5055
+	}
+
 	@portainer host portainer.lan.{$DOMAIN}
 	handle @portainer {
 		reverse_proxy core:9000
