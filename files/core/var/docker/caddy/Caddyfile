@@ -139,4 +139,9 @@ dns.{$DOMAIN} {
 	handle @rtc {
 		reverse_proxy frigate:1984
 	}
+
+	@recipes host recipes.lan.{$DOMAIN}
+	handle @recipes {
+		reverse_proxy mealie-frontend:3000
+	}
 }

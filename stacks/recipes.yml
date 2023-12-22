@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   mealie-frontend:
-    image: hkotel/mealie:frontend-v1.0.0beta-5
+    image: hkotel/mealie:frontend-nightly
     container_name: mealie-frontend
     restart: unless-stopped
 
@@ -12,13 +12,20 @@ services:
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/mealie:/app/data/
 
+    environment:
+      TZ: Europe/Berlin
+      PUID: ${UID:-2000}
+      PGID: ${GID:-2000}
+      API_URL: http://mealie-api:9000
+
   mealie-api:
-    image: hkotel/mealie:api-v1.0.0beta-5
+    image: hkotel/mealie:api-nightly
     container_name: mealie-api
     restart: unless-stopped
 
     networks:
       - backend
+      - proxy
       - smtp
 
     volumes:
@@ -32,11 +39,10 @@ services:
       SMTP_HOST: smtprelay
       SMTP_PORT: 2525
       SMTP_AUTH_STRATEGY: NONE
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASSWORD: ${SMTP_PASSWORD}
       SMTP_FROM_NAME: ${SMTP_NAME:-Mealie}
       SMTP_FROM_EMAIL: ${SMTP_MAIL}
-      #ALLOW_SIGNUP=true
+      DEFAULT_EMAIL: ${SMTP_DEFAULTMAIL}
+      ALLOW_SIGNUP: false
 
 networks:
   proxy:

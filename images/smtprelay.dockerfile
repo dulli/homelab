@@ -8,5 +8,5 @@ COPY --from=builder /go/bin/smtprelay /usr/bin/smtprelay
 
 RUN smtprelay -version > /.version
 
-ENTRYPOINT smtprelay
+ENTRYPOINT smtprelay -listen 0.0.0.0:2525
 LABEL org.opencontainers.image.source="https://github.com/dulli/homelab"
