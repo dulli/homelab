@@ -6,13 +6,10 @@ services:
     restart: unless-stopped
     user: 1510:1500
     group_add:
-      - "106" # Change this to match your "render" host group id and remove this comment
+      - ${RENDER_GROUP}
 
     networks:
       - proxy
-
-    devices:
-      - /dev/dri/renderD128:/dev/dri/renderD128
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/jellyfin/config:/config
@@ -20,6 +17,9 @@ services:
       - ${DOCKER_DATA_PATH:-/var/docker}/jellyfin/web:/jellyfin/jellyfin-web
       - ${JELLYFIN_MEDIA_PATH:-/srv/media}:/media
       - /mnt/nas:/mnt/nas:shared
+
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
 
     environment:
       JELLYFIN_PublishedServerUrl: ${JELLYFIN_URL}
@@ -34,19 +34,21 @@ services:
     network_mode: none
 
     volumes:
-      - ${DOCKER_DATA_PATH:-/var/docker}/backups:/backup
+      - ${DOCKER_DATA_PATH:-/var/docker}/.backups:/backup
       - ${DOCKER_DATA_PATH:-/var/docker}/jellyfin/config/data/jellyfin.db:/jellyfin.sqlite3
 
     environment:
-      - DB_TYPE=sqlite3
-      - DB_HOST=/jellyfin.sqlite3
-      - DB_NAME=ALL
-      - DB_DUMP_BEGIN=+1
-      - DB_CLEANUP_TIME=2880
-      - CHECKSUM=SHA1
-      - COMPRESSION=GZ
-      - GZ_RSYNCABLE=TRUE
-      - CONTAINER_ENABLE_MONITORING=FALSE
+      USER_DBBACKUP: ${UID:-1000}
+      GROUP_DBBACKUP: ${GID:-1000}
+      CONTAINER_ENABLE_MONITORING: false
+      DEFAULT_GZ_RSYNCABLE: true
+      DEFAULT_CLEANUP_TIME: 2880
+      DB01_TYPE: sqlite3
+      DB01_HOST: /jellyfin.sqlite3
+      DB01_NAME: ALL
+      DB02_TYPE: sqlite3
+      DB02_HOST: /jellyseerr.sqlite3
+      DB02_NAME: ALL
 
 networks:
   proxy:

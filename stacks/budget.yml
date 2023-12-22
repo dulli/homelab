@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   actual-server:
-    image: jlongster/actual-server:1.0-alpine
+    image: actualbudget/actual-server:latest-alpine
     container_name: actual-server
     restart: unless-stopped
 

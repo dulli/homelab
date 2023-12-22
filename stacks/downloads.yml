@@ -13,30 +13,6 @@ services:
       - ${DOWNLOAD_PATH:-/var/pyload}:/opt/pyload/download
       - ${DOCKER_DATA_PATH:-/var/docker}/pyload/themes:/usr/lib/python3.11/site-packages/pyload/webui/app/themes
 
-  pyload-backup:
-    image: tiredofit/db-backup
-    container_name: pyload-backup
-    restart: always
-    depends_on:
-      - pyload
-
-    network_mode: none
-
-    volumes:
-      - ${DOCKER_DATA_PATH:-/var/docker}/backups:/backup
-      - ${DOCKER_DATA_PATH:-/var/docker}/pyload/data/pyload.db:/pyload.sqlite3
-
-    environment:
-      - DB_TYPE=sqlite3
-      - DB_HOST=/pyload.sqlite3
-      - DB_NAME=ALL
-      - DB_DUMP_BEGIN=+1
-      - DB_CLEANUP_TIME=2880
-      - CHECKSUM=SHA1
-      - COMPRESSION=GZ
-      - GZ_RSYNCABLE=TRUE
-      - CONTAINER_ENABLE_MONITORING=FALSE
-
 networks:
   proxy:
     external: true

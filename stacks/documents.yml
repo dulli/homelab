@@ -80,9 +80,10 @@ services:
       - webserver
 
     entrypoint: "/bin/sh"
+
     command:
       - "-c"
-      - '(echo "* * * * * if ! pidof rclone; then rclone sync --dry-run /data/archive remote:${REMOTE_PATH}; fi" | crontab -) && crond -f'
+      - '(echo "* * * * * if ! pidof rclone; then rclone sync /data/archive remote:${REMOTE_PATH}; fi" | crontab -) && crond -f'
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/paperless/rclone:/config/rclone

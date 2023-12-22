@@ -13,7 +13,9 @@ services:
 
     environment:
       SMTPRELAY_USERS: /etc/smtprelay_users # username bcrypt-hash [email[,email[,...]]]
+      SMTPRELAY_ALLOWED_NETS: ${SUBNET_IPV4:-172.25.0.0/16}
       SMTPRELAY_REMOTES: ${REMOTE_PROTOCOL:-starttls}://${REMOTE_USER}:${REMOTE_PASSWORD}@${REMOTE_ADDRESS}:${REMOTE_PORT:-587}
+      SMTPRELAY_LOG_LEVEL: debug
 
 networks:
   smtp:
@@ -23,7 +25,7 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: ${SUBNET_IPV4:-172.125.0.0/16}
+        - subnet: ${SUBNET_IPV4:-172.25.0.0/16}
 
     driver_opts:
       com.docker.network.bridge.name: docker-smtp

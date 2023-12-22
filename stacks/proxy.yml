@@ -14,6 +14,7 @@ services:
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ${DOCKER_DATA_PATH:-/var/docker}/caddy/cnames:/etc/caddy/cnames
       - ${DOCKER_DATA_PATH:-/var/docker}/caddy/static:/srv/static
       - ${DOCKER_DATA_PATH:-/var/docker}/caddy/data:/data
       - ${DOCKER_DATA_PATH:-/var/docker}/caddy/config:/config
@@ -39,7 +40,7 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: ${SUBNET_IPV4:-172.100.0.0/16}
+        - subnet: ${SUBNET_IPV4:-172.22.0.0/16}
         - subnet: ${SUBNET_IPV6:-fd02:fc5:9bd7::/48}
 
     driver_opts:

@@ -7,9 +7,12 @@ services:
     privileged: true
     shm_size: "64mb" # (width * height * 1.5 * 9 + 270480)/1048576 = <shm size in mb> (per Camera)
 
-    devices:
-      - /dev/dri/renderD128 # for intel hwaccel
-      - /dev/apex_0 # for PCIe Coral
+    networks:
+      - proxy
+
+    ports:
+      - 1984:1984
+      - 8555:8555
 
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -20,12 +23,9 @@ services:
         tmpfs:
           size: 1000000000
 
-    networks:
-      - proxy
-
-    ports:
-      - 1984:1984
-      - 8555:8555
+    devices:
+      - /dev/dri/renderD128 # for intel hwaccel
+      - /dev/apex_0:/dev/apex_0 # for PCIe Coral
 
     environment:
       FRIGATE_RTSP_PASSWORD: ${RTSP_PASSWORD}

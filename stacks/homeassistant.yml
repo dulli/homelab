@@ -35,9 +35,9 @@ services:
       - ${DOCKER_DATA_PATH:-/var/docker}/homeassistant/ssh:/root/.ssh
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/localtime:/etc/localtime:ro
+
     devices:
       - /dev/serial/by-id/${SERIAL_ID}
-      #- /dev/ttyUSB0
 
   homeassistant-piper:
     image: rhasspy/wyoming-piper
@@ -73,19 +73,18 @@ services:
     network_mode: none
 
     volumes:
-      - ${DOCKER_DATA_PATH:-/var/docker}/backups:/backup
-      - ${DOCKER_DATA_PATH:-/var/docker}/homeassistant/config/home-assistant_v2.db:/home-assistant.sqlite3
+      - ${DOCKER_DATA_PATH:-/var/docker}/.backups:/backup
+      - ${DOCKER_DATA_PATH:-/var/docker}/homeassistant/config/home-assistant_v2.db:/homeassistant.sqlite3
 
     environment:
-      - DB_TYPE=sqlite3
-      - DB_HOST=/home-assistant.sqlite3
-      - DB_NAME=ALL
-      - DB_DUMP_BEGIN=+1
-      - DB_CLEANUP_TIME=2880
-      - CHECKSUM=SHA1
-      - COMPRESSION=GZ
-      - GZ_RSYNCABLE=TRUE
-      - CONTAINER_ENABLE_MONITORING=FALSE
+      USER_DBBACKUP: ${UID:-1000}
+      GROUP_DBBACKUP: ${GID:-1000}
+      CONTAINER_ENABLE_MONITORING: false
+      DEFAULT_GZ_RSYNCABLE: true
+      DEFAULT_CLEANUP_TIME: 2880
+      DB01_TYPE: sqlite3
+      DB01_HOST: /homeassistant.sqlite3
+      DB01_NAME: ALL
 
 networks:
   proxy:
