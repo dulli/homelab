@@ -1,0 +1,11 @@
+version: "3.5"
+services:
+  brscan:
+    image: brscan:latest
+    container_name: brscan
+    restart: unless-stopped
+    privileged: true
+
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+      - /var/docker/brscan:/root/brscan
