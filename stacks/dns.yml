@@ -17,7 +17,7 @@ services:
     volumes:
       - ${TLS_CERT_PATH}.key:/etc/unbound/tls/dns.key
       - ${TLS_CERT_PATH}.crt:/etc/unbound/tls/dns.crt
-    #  - ${DOCKER_DATA_PATH:-/var/docker}/unbound:/etc/unbound
+      - ${DOCKER_DATA_PATH:-/var/docker}/unbound/local:/etc/unbound/local
 
 networks:
   proxy:
