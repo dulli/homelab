@@ -4,7 +4,7 @@
 	dynamic_dns {
 		provider cloudflare {env.CF_API_TOKEN}
 		domains {
-			{$DOMAIN} dyn *.dyn
+			{$DOMAIN} dyn *.dyn ipv6
 		}
 		versions ipv6
 		ip_source simple_http https://api6.ipify.org
@@ -19,14 +19,31 @@
 	}
 }
 
-dns.dulli.me {
+dns.{$DOMAIN} {
 	respond OK
 }
 
-*.dyn.{$DOMAIN}, *.lan.{$DOMAIN} {
+*.dyn.{$DOMAIN}, *.lan.{$DOMAIN}, *.lan.{$DOMAIN}:80, lan.{$DOMAIN} {
 	encode zstd gzip
 
+	@web {
+		host web.dyn.{$DOMAIN}
+	}
+	handle @web {
+		root * /srv/static/web
+		file_server
+	}
+
+	@test {
+		host test.dyn.{$DOMAIN}
+		host test.lan.{$DOMAIN}
+	}
+	handle @test {
+		respond OK
+	}
+
 	@notinternal {
+		host lan.{$DOMAIN}
 		host *.lan.{$DOMAIN}
 		not remote_ip 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8 fe80::/64
 	}
@@ -42,34 +59,17 @@ dns.dulli.me {
 		reverse_proxy core:8123
 	}
 
-	@rss {
-		host rss.dyn.{$DOMAIN}
-		host rss.lan.{$DOMAIN}
-	}
-	handle @rss {
-		reverse_proxy miniflux:8080
-	}
-
-	@pw {
-		host pw.dyn.{$DOMAIN}
-		host pw.lan.{$DOMAIN}
-	}
+	@pw host pw.lan.{$DOMAIN}
 	handle @pw {
 		reverse_proxy vaultwarden:3011
 	}
 
-	@dl {
-		host dl.dyn.{$DOMAIN}
-		host dl.lan.{$DOMAIN}
-	}
+	@dl host dl.lan.{$DOMAIN}
 	handle @dl {
 		reverse_proxy pyload-ng:8000
 	}
 
-	@cnl {
-		host cnl.dyn.{$DOMAIN}
-		host cnl.lan.{$DOMAIN}
-	}
+	@cnl host cnl.lan.{$DOMAIN}
 	handle @cnl {
 		basicauth {
 			{env.CNL_AUTH_USER} {env.CNL_AUTH_PASSWD}
