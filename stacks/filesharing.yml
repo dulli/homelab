@@ -1,0 +1,19 @@
+version: "3.3"
+services:
+  gokapi:
+    image: f0rc3/gokapi:latest
+    container_name: gokapi
+    restart: unless-stopped
+
+    networks:
+      - proxy
+
+    volumes:
+      - /var/docker/gokapi/data:/app/data
+      - /var/docker/gokapi/conf:/app/config
+      - /var/docker/gokapi/templates:/app/templates
+      - /var/docker/gokapi/static:/app/static
+
+networks:
+  proxy:
+    external: true

@@ -10,7 +10,7 @@ vps.{$DOMAIN} {
 	}
 }
 
-import cnames/*
+import /etc/caddy/cnames/*
 
 *.vps.{$DOMAIN} {
 	encode zstd gzip
@@ -33,5 +33,20 @@ import cnames/*
 	@wa host wa.vps.{$DOMAIN}
 	handle @wa {
 		reverse_proxy umami:3000
+	}
+
+	@gokapi host files.vps.{$DOMAIN}
+	handle @gokapi {
+		reverse_proxy gokapi:53842
+	}
+
+	@links host links.vps.{$DOMAIN}
+	handle @links {
+		reverse_proxy shlink-web:80
+	}
+
+	@shorturl host go.vps.{$DOMAIN}
+	handle @shorturl {
+		reverse_proxy shlink:8080
 	}
 }
