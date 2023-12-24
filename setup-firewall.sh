@@ -53,3 +53,7 @@ sudo ip6tables -P INPUT DROP
 
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 sudo ip6tables-save | sudo tee /etc/iptables/rules.v6
+
+# Crowdsec (see https://www.smarthomebeginner.com/crowdsec-docker-compose-1-fw-bouncer/)
+curl -s https://packagecloud.io/install/repositories/crowdsec/crowdsec/script.deb.sh | sudo bash
+sudo apt-get install syslog-ng crowdsec-firewall-bouncer-iptables

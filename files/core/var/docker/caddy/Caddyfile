@@ -159,4 +159,8 @@ dns.{$DOMAIN} {
 	handle @pdf {
 		reverse_proxy stirling-pdf:8080
 	}
+
+	log {
+		output file /var/log/access-lan.log
+	}
 }
