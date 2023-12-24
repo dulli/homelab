@@ -18,6 +18,7 @@ services:
       - ${DOCKER_DATA_PATH:-/var/docker}/caddy/static:/srv/static
       - ${DOCKER_DATA_PATH:-/var/docker}/caddy/data:/data
       - ${DOCKER_DATA_PATH:-/var/docker}/caddy/config:/config
+      - ${DOCKER_DATA_PATH:-/var/docker}/caddy/logs:/var/log
 
     environment:
       CF_API_TOKEN: ${CF_API_TOKEN}
