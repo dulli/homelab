@@ -8,4 +8,21 @@ services:
 
     volumes:
       - /dev/bus/usb:/dev/bus/usb
-      - /var/docker/brscan:/root/brscan
+      - ${DOCKER_DATA_PATH:-/var/docker}/brscan:/root/brscan
+
+  rclone:
+    image: rclone/rclone:latest
+    container_name: brscan-rclone
+    restart: unless-stopped
+    depends_on:
+      - brscan
+
+    entrypoint: "/bin/sh"
+
+    command:
+      - "-c"
+      - '(echo "* * * * * if ! pidof rclone; then rclone move /data/brscan remote:${REMOTE_SCAN_PATH}; fi" | crontab -) && crond -f'
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/rclone:/config/rclone
+      - ${DOCKER_DATA_PATH:-/var/docker}/brscan:/data/brscan
