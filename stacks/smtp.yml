@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   smtprelay:
-    image: smtprelay:latest
+    image: ghcr.io/dulli/smtprelay:1
     container_name: smtprelay
     restart: unless-stopped
 

@@ -1,7 +1,7 @@
 version: "3.5"
 services:
   brscan:
-    image: brscan:latest
+    image: ghcr.io/dulli/brscan:1
     container_name: brscan
     restart: unless-stopped
     privileged: true

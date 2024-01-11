@@ -1,9 +1,9 @@
 version: "3.5"
 services:
   avahi:
+    image: ghcr.io/dulli/avahi-reflector:0
     container_name: avahi-mdns
     hostname: docker-avahi
-    image: ghcr.io/dulli/avahi-reflector:0
     restart: always
 
     networks:
