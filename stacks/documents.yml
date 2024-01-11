@@ -46,6 +46,8 @@ services:
       PAPERLESS_URL: https://docs.lan.${DOMAIN}
       PAPERLESS_SECRET_KEY: ${SECRET_KEY}
       PAPERLESS_TIME_ZONE: Europe/Berlin
+      PAPERLESS_CONSUMER_RECURSIVE: 1
+      PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS: 1
       #USERMAP_UID: ${UID:-1000}
       #USERMAP_GID: ${GID:-1000}
 
@@ -83,11 +85,12 @@ services:
 
     command:
       - "-c"
-      - '(echo "* * * * * if ! pidof rclone; then rclone sync /data/archive remote:${REMOTE_PATH}; fi" | crontab -) && crond -f'
+      - '(echo "* * * * * if ! pidof rclone; then rclone sync /data/archive remote:${REMOTE_ARCHIVE_PATH} && rclone move remote:${REMOTE_CONSUME_PATH} /data/consume --delete-empty-src-dirs; fi" | crontab -) && crond -f'
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/paperless/rclone:/config/rclone
       - ${DOCKER_DATA_PATH:-/var/docker}/paperless/media/documents/archive:/data/archive:ro
+      - ${DOCKER_DATA_PATH:-/var/docker}/paperless/consume:/data/consume
 
     networks:
       - proxy
