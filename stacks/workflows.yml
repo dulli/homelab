@@ -1,0 +1,15 @@
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: n8n
+    restart: unless-stopped
+
+    networks:
+      - proxy
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/n8n:/home/node/.n8n
+
+networks:
+  proxy:
+    external: true
