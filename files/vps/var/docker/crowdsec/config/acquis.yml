@@ -6,7 +6,3 @@ filenames:
  - /var/log/mail.log
 labels:
   type: syslog
----
-filenames:
-  - /caddy/*.log
-  type: caddy
