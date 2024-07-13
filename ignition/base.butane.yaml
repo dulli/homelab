@@ -1,0 +1,218 @@
+variant: fcos
+version: 1.5.0
+passwd:
+  groups:
+    - name: storage
+      gid: 2000
+    - name: media
+      gid: 2100
+    - name: git
+      gid: 2200
+    - name: apex
+      gid: 2300
+    - name: remote
+      gid: 2400
+  users:
+    - name: core
+      should_exist: false
+    - name: martin
+      password_hash: ${IGN_USER_PASSWORD_HASH}
+      ssh_authorized_keys:
+        - ${IGN_USER_SSH_PUBLIC_KEY_MARTIN}
+      groups: [users, sudo, docker, storage, media, git, remote]
+    - name: homeassistant
+      uid: 2410
+      home_dir: /tmp
+      shell: /usr/local/bin/remote_cmds.sh
+      primary_group: remote
+      groups: [users, sudo, remote]
+      no_create_home: true
+      no_user_group: true
+storage:
+  disks:
+    - device: /dev/disk/by-id/coreos-boot-disk
+      wipe_table: false
+      partitions:
+      - number: 4
+        label: root
+        size_mib: 8192
+        resize: true
+      - size_mib: 0
+        label: var
+  directories:
+    - path: /etc/ucore-autorebase
+      mode: 0754
+    - path: /home/martin/.ssh
+      mode: 0700
+      user:
+        name: martin
+      group:
+        name: martin
+    - path: /home/martin/.ssh/authorized_keys.d
+      mode: 0700
+      user:
+        name: martin
+      group:
+        name: martin
+    - path: /home/martin/.local
+      user:
+        name: martin
+      group:
+        name: martin
+    - path: /home/martin/.local/bin
+      user:
+        name: martin
+      group:
+        name: martin
+    - path: /etc/ssh/remote_keys/
+      mode: 0770
+      user:
+        name: root
+      group:
+        name: remote
+    - path: /etc/ssh/remote_keys/homeassistant
+      mode: 0700
+      user:
+        name: homeassistant
+      group:
+        name: remote
+  files:
+    - path: /etc/vconsole.conf
+      mode: 0644
+      contents:
+        inline: KEYMAP=de
+    - path: /home/martin/.dircolors
+      overwrite: true
+      user:
+        name: martin
+      group:
+        name: martin
+      contents:
+        source: https://github.com/dulli/dotfiles/raw/main/.dircolors
+    - path: /home/martin/.bashrc
+      overwrite: true
+      user:
+        name: martin
+      group:
+        name: martin
+      contents:
+        source: https://github.com/dulli/dotfiles/raw/main/.bashrc
+    - path: /home/martin/.local/bin/git-prompt.sh
+      overwrite: true
+      mode: 0744
+      user:
+        name: martin
+      group:
+        name: martin
+      contents:
+        source: https://github.com/dulli/dotfiles/raw/main/.local/bin/git-prompt.sh
+    - path: /home/martin/.inputrc
+      overwrite: true
+      user:
+        name: martin
+      group:
+        name: martin
+      contents:
+        source: https://github.com/dulli/dotfiles/raw/main/.inputrc
+    - path: /home/martin/.tmux.conf
+      overwrite: true
+      user:
+        name: martin
+      group:
+        name: martin
+      contents:
+        source: https://github.com/dulli/dotfiles/raw/main/.tmux.conf
+    - path: /home/martin/.ssh/authorized_keys.d/dotfiles
+      overwrite: true
+      mode: 0600
+      user:
+        name: martin
+      group:
+        name: martin
+      contents:
+        source: https://github.com/dulli/dotfiles/raw/main/.ssh/authorized_keys
+    - path: /usr/local/bin/remote_cmds.sh
+      overwrite: true
+      mode: 0750
+      user:
+        name: root
+      group:
+        name: remote
+      contents:
+        inline: |
+          #!/bin/sh
+          case $1 in
+            suspend)
+              sudo systemctl suspend
+              ;;
+            ping)
+              echo pong
+              ;;
+            *)
+              echo unknown command
+              ;;
+          esac
+    - path: /etc/ssh/sshd_config.d/41-ssh-key-remote.conf
+      overwrite: true
+      mode: 0744
+      user:
+        name: root
+      group:
+        name: root
+      contents:
+        inline: |
+          Match group remote
+              AuthorizedKeysFile /etc/ssh/remote_keys/%u/authorized_keys
+    - path: /etc/ssh/remote_keys/homeassistant/authorized_keys
+      overwrite: true
+      mode: 0600
+      user:
+        name: homeassistant
+      group:
+        name: remote
+      contents:
+        inline: |
+          ${IGN_USER_SSH_PUBLIC_KEY_HOMEASSISTANT}
+  links:
+    - path: /etc/localtime
+      target: ../usr/share/zoneinfo/Europe/Berlin
+systemd:
+  units:
+    - name: ucore-unsigned-autorebase.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=uCore autorebase to unsigned OCI and reboot
+        ConditionPathExists=!/etc/ucore-autorebase/unverified
+        ConditionPathExists=!/etc/ucore-autorebase/signed
+        After=network-online.target
+        Wants=network-online.target
+        [Service]
+        Type=oneshot
+        StandardOutput=journal+console
+        ExecStart=/usr/bin/rpm-ostree rebase --bypass-driver ostree-unverified-registry:ghcr.io/ublue-os/ucore:stable
+        ExecStart=/usr/bin/touch /etc/ucore-autorebase/unverified
+        ExecStart=/usr/bin/systemctl disable ucore-unsigned-autorebase.service
+        ExecStart=/usr/bin/systemctl reboot
+        [Install]
+        WantedBy=multi-user.target
+    - name: ucore-signed-autorebase.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=uCore autorebase to signed OCI and reboot
+        ConditionPathExists=/etc/ucore-autorebase/unverified
+        ConditionPathExists=!/etc/ucore-autorebase/verified
+        After=network-online.target
+        Wants=network-online.target
+        [Service]
+        Type=oneshot
+        StandardOutput=journal+console
+        ExecStart=/usr/bin/rpm-ostree rebase --bypass-driver ostree-image-signed:docker://ghcr.io/ublue-os/ucore:stable
+        ExecStart=/usr/bin/touch /etc/ucore-autorebase/signed
+        ExecStart=/usr/bin/systemctl disable ucore-signed-autorebase.service
+        ExecStart=/usr/bin/systemctl reboot
+        [Install]
+        WantedBy=multi-user.target     
+    - name: firewalld.service
+      enabled: false

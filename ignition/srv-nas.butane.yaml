@@ -1,0 +1,140 @@
+variant: fcos
+version: 1.5.0
+ignition:
+  config:
+    merge:
+      - local: ./base.ign
+storage:
+  filesystems:
+    - path: /var
+      device: /dev/disk/by-partlabel/var
+      format: ext4
+      wipe_filesystem: false
+      with_mount_unit: true
+  directories:
+    - path: /var/pool/1/merged
+      group:
+        name: storage
+  links:
+    - path: /srv/pool1
+      target: /var/pool/1/merged
+  files:
+    - path: /etc/hostname
+      contents:
+        inline: |
+          srv-nas
+    - path: /etc/crypttab
+      overwrite: true
+      contents:
+        inline: |
+          data1    /dev/disk/by-label/data1    none  _netdev
+          data2    /dev/disk/by-label/data2    none  _netdev
+          data3    /dev/disk/by-label/data3    none  _netdev
+          data4    /dev/disk/by-label/data4    none  _netdev
+          data5    /dev/disk/by-label/data5    none  _netdev
+          parity1  /dev/disk/by-label/parity1  none  _netdev
+    - path: /etc/fstab
+      overwrite: true
+      contents:
+        inline: |
+          /dev/mapper/data1    /var/pool/1/data1    ext4  _netdev,defaults,user_xattr,acl,nofail,x-systemd.device-timeout=10 0 2
+          /dev/mapper/data2    /var/pool/1/data2    ext4  _netdev,defaults,user_xattr,acl,nofail,x-systemd.device-timeout=10 0 2
+          /dev/mapper/data3    /var/pool/1/data3    ext4  _netdev,defaults,user_xattr,acl,nofail,x-systemd.device-timeout=10 0 2
+          /dev/mapper/data4    /var/pool/1/data4    ext4  _netdev,defaults,user_xattr,acl,nofail,x-systemd.device-timeout=10 0 2
+          /dev/mapper/data5    /var/pool/1/data5    ext4  _netdev,defaults,user_xattr,acl,nofail,x-systemd.device-timeout=10 0 2
+          /dev/mapper/parity1  /var/pool/1/parity1  ext4  _netdev,defaults,user_xattr,acl,nofail,x-systemd.device-timeout=10 0 2
+    - path: /etc/snapraid-diff.conf
+      overwrite: true
+      contents:
+        inline: |
+          SYSLOG=true
+          DEBUG=false
+          SENDMAIL=false
+          RUN_SCRUB=true
+          SCRUB_FREQUENCY_IN_DAYS=7
+          UPD_THRESHOLD=0
+          DEL_THRESHOLD=0
+          SCRUB_PERCENT=12
+    - path: /etc/snapraid.conf
+      overwrite: true
+      contents:
+        inline: |
+          autosave 1000
+          nohidden
+
+          content /var/pool/1/data1/snapraid.content
+          content /var/pool/1/data2/snapraid.content
+          content /var/pool/1/data3/snapraid.content
+          content /var/pool/1/data4/snapraid.content
+          content /var/pool/1/data5/snapraid.content
+          parity /var/pool/1/parity1//snapraid.parity
+
+          disk data1 /var/pool/1/data1
+          disk data2 /var/pool/1/data2
+          disk data3 /var/pool/1/data3
+          disk data4 /var/pool/1/data4
+          disk data5 /var/pool/1/data5
+
+          exclude *.unrecoverable
+          exclude lost+found/
+          exclude aquota.user
+          exclude aquota.group
+          exclude /tmp/
+          exclude .content
+          exclude *.bak
+          exclude /snapraid.conf*
+          exclude /Downloads/
+    - path: /etc/samba/smb.conf
+      overwrite: true
+      contents:
+        inline: |
+          [global]
+          workgroup = WORKGROUP
+          security = user
+          client min protocol = SMB2
+          client max protocol = SMB3
+          hide unreadable = yes
+
+          [Medien]
+          comment = Medien-Sammlung
+          path = /srv/pool1/Medien/
+          writeable = yes
+          browseable = yes
+          public = yes
+          create mask = 0660
+          directory mask = 0770
+          wide links = yes
+systemd:
+  units:
+    - name: clevis-luks-askpass.service 
+      enabled: true
+    - name:  remote-cryptsetup.target
+      enabled: true
+    - name: smb.service
+      enabled: true
+    - name: nmb.service
+      enabled: true
+    - name: mergerfs-pool1.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Default mergerfs pool
+        Requires=var-pool-1-data1.mount var-pool-1-data2.mount var-pool-1-data3.mount var-pool-1-data4.mount var-pool-1-data5.mount
+        After=var-pool-1-data1.mount var-pool-1-data2.mount var-pool-1-data3.mount var-pool-1-data4.mount var-pool-1-data5.mount
+
+        [Service]
+        Type=simple
+        KillMode=none
+        ExecStart=/usr/bin/mergerfs -f -o cache.files=off,category.create=mfs,minfreespace=4G,fsname=pool1,defaults,allow_other /var/pool/1/data* /var/pool/1/merged
+        ExecStop=/bin/fusermount -uz /var/pool/1/merged
+        Restart=on-failure
+
+        [Install]
+        WantedBy=remote-fs.target
+
+# nmcli c modify "Wired connection 1" 802-3-ethernet.wake-on-lan magic
+# setsebool -P samba_export_all_rw 1
+# echo -e "$IGN_SMB_PASSWORD\n$IGN_SMB_PASSWORD" | smbpasswd -a -s martin
+# sudo rpm-ostree install tree htop pip gcc
+# python3 -m venv /opt/autosuspend
+# /opt/autosuspend/bin/pip install git+https://github.com/languitar/autosuspend.git@v7.0.0#egg=autosuspend[all]

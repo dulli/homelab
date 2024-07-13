@@ -58,3 +58,17 @@ publish-all platforms="linux/arm64,linux/amd64" registry="ghcr.io/dulli":
         just --justfile {{justfile()}} \
             publish "$(echo $image | cut -d. -f1)" {{platforms}} {{registry}};
     done
+
+# 
+ignite config:
+    #!/usr/bin/env bash
+    echo "Translating {{config}} (incl. base) from Butane YAML to Ignition JSON"
+    set -u
+
+    set -o allexport
+    source .env
+
+    mkdir -p ignition/build
+    envsubst < "ignition/base.butane.yaml" | butane --pretty --strict  > "ignition/build/base.ign"
+    envsubst < "ignition/{{config}}.butane.yaml" | butane --pretty --strict --files-dir ignition/build > "ignition/build/{{config}}.ign"
+    
