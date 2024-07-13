@@ -1,0 +1,21 @@
+version: '2.4'
+
+services:
+  octoprint:
+    image: octoprint/octoprint
+    restart: unless-stopped
+    container_name: octoprint
+    networks:
+      - proxy
+    devices:
+      - /dev/ttyUSB1
+      - /dev/video0
+      - /dev/video1
+    volumes:
+      - /var/docker/octoprint:/octoprint
+    environment:
+      - ENABLE_MJPG_STREAMER=true
+
+networks:
+  proxy:
+    external: true
