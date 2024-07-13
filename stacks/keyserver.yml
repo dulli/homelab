@@ -1,0 +1,16 @@
+version: "3.3"
+services:
+  tang:
+    image: tang:latest
+    container_name: tang
+    restart: unless-stopped
+
+    networks:
+      - proxy
+
+    volumes:
+      - ${DOCKER_DATA_PATH:-/var/docker}/tang/db:/db
+
+networks:
+  proxy:
+    external: true
