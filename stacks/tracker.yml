@@ -1,0 +1,36 @@
+services:
+  ryot-db:
+    image: postgres:16-alpine
+    container_name: ryot-db
+    restart: unless-stopped
+
+    networks:
+      - backend
+      
+    volumes:
+      - /var/docker/ryot/db:/var/lib/postgresql/data
+
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+
+  ryot:
+    image: ghcr.io/ignisda/ryot:v6
+    container_name: ryot
+    restart: unless-stopped
+
+    networks:
+      - backend
+      - proxy
+
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@ryot-db:5432/postgres
+
+
+networks:
+  backend:
+    driver: bridge
+    internal: true
+  proxy:
+    external: true
