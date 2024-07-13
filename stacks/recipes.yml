@@ -36,9 +36,10 @@ services:
       BASE_URL: ${BASE_URL}
       PUID: ${UID:-2000}
       PGID: ${GID:-2000}
-      SMTP_HOST: smtprelay
-      SMTP_PORT: 2525
-      SMTP_AUTH_STRATEGY: NONE
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: 2587
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
       SMTP_FROM_NAME: ${SMTP_NAME:-Mealie}
       SMTP_FROM_EMAIL: ${SMTP_MAIL}
       DEFAULT_EMAIL: ${SMTP_DEFAULTMAIL}

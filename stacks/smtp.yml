@@ -10,9 +10,11 @@ services:
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/smtprelay/users:/etc/smtprelay_users
+      - ${TLS_CERT_PATH}.key:/tls.key:ro
+      - ${TLS_CERT_PATH}.crt:/tls.crt:ro
 
     environment:
-      SMTPRELAY_USERS: /etc/smtprelay_users # username bcrypt-hash [email[,email[,...]]]
+      SMTPRELAY_ALLOWED_USERS: /etc/smtprelay_users # username bcrypt-hash [email[,email[,...]]]
       SMTPRELAY_ALLOWED_NETS: ${SUBNET_IPV4:-172.25.0.0/16}
       SMTPRELAY_REMOTES: ${REMOTE_PROTOCOL:-starttls}://${REMOTE_USER}:${REMOTE_PASSWORD}@${REMOTE_ADDRESS}:${REMOTE_PORT:-587}
       SMTPRELAY_LOG_LEVEL: debug
