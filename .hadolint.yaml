@@ -1,0 +1,21 @@
+ignored:
+  - DL3029 # Allow --platform in FROM.
+  - DL3008 # Do not pin versions in apt get install.
+  - DL3018 # Do not pin versions in apk add.
+
+trustedRegistries:
+  - docker.io
+  - "*.gcr.io"
+
+label-schema:
+  org.opencontainers.image.title: text
+  org.opencontainers.image.description: text
+  org.opencontainers.image.source: url
+  org.opencontainers.image.authors: text
+  org.opencontainers.image.base.name: text
+  org.opencontainers.image.created: rfc3339
+  org.opencontainers.image.version: semver
+  org.opencontainers.image.documentation: url
+  org.opencontainers.image.revision: hash
+  org.opencontainers.image.licenses: spdx
+strict-labels: true

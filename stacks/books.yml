@@ -5,8 +5,9 @@ services:
     container_name: calibre-web
     restart: unless-stopped
 
-    ports:
-      - 8083:8083
+    networks:
+      - proxy
+      - smtp
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/calibre-web:/config
@@ -14,4 +15,11 @@ services:
 
     environment:
       TZ: ${TZ:-Europe/Berlin}
-      DOCKER_MODS: linuxserver/calibre-web:calibre
+      PUID: 1540
+      PGID: 1540
+      
+networks:
+  proxy:
+    external: true
+  smtp:
+    external: true
