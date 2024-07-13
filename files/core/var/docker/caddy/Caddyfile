@@ -19,7 +19,15 @@
 	}
 }
 
+core.local:80 {
+	redir /lan/* https://{path.1}.lan.{$DOMAIN}
+}
+
 dns.{$DOMAIN} {
+	respond OK
+}
+
+smtp.{$DOMAIN} {
 	respond OK
 }
 
@@ -132,7 +140,7 @@ dns.{$DOMAIN} {
 
 	@books host books.lan.{$DOMAIN}
 	handle @books {
-		reverse_proxy nas:8083
+		reverse_proxy calibre-web:8083
 	}
 
 	@nvr host nvr.lan.{$DOMAIN}
@@ -150,14 +158,64 @@ dns.{$DOMAIN} {
 		reverse_proxy mealie-frontend:3000
 	}
 
+	@recipes2 host recipes2.lan.{$DOMAIN}
+	handle @recipes2 {
+		reverse_proxy tandoor-nginx:80
+	}
+
+	@sso host sso.dyn.{$DOMAIN}
+	handle @sso {
+		reverse_proxy authentik-server:9000
+	}
+
 	@pins host pins.lan.{$DOMAIN}
 	handle @pins {
 		reverse_proxy tinypin:3000
 	}
 
+	@photos host photos.lan.{$DOMAIN}
+	handle @photos {
+		reverse_proxy nas:8000
+	}
+
 	@pdf host pdf.lan.{$DOMAIN}
 	handle @pdf {
 		reverse_proxy stirling-pdf:8080
+	}
+
+	@git host git.lan.{$DOMAIN}
+	handle @git {
+		reverse_proxy forgejo:3000
+	}
+
+	@n8n host n8n.lan.{$DOMAIN}
+	handle @n8n {
+		reverse_proxy n8n:5678
+	}
+
+	@projects host projects.lan.{$DOMAIN}
+	handle @projects {
+		reverse_proxy openproject:80
+	}
+
+	@octoprint host octoprint.lan.{$DOMAIN}
+	handle @octoprint {
+		reverse_proxy octoprint:80
+	}
+
+	@ryot host tracker.lan.{$DOMAIN}
+	handle @ryot {
+		reverse_proxy ryot:3000
+	}
+
+	@tang host tang.lan.{$DOMAIN}
+	handle @tang {
+		reverse_proxy tang:7500
+	}
+
+	@home host lan.{$DOMAIN}
+	handle @home {
+		reverse_proxy flame:5005
 	}
 
 	log {
