@@ -85,7 +85,7 @@ services:
 
     command:
       - "-c"
-      - '(echo "* * * * * if ! pidof rclone; then rclone sync /data/archive remote:${REMOTE_ARCHIVE_PATH} && rclone move remote:${REMOTE_CONSUME_PATH} /data/consume --delete-empty-src-dirs; fi" | crontab -) && crond -f'
+      - '(echo "* * * * * if ! pidof rclone; then rclone sync /data/archive remote:${REMOTE_ARCHIVE_PATH} && rclone move remote:${REMOTE_CONSUME_PATH} /data/consumepr; fi" | crontab -) && crond -f'
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/paperless/rclone:/config/rclone

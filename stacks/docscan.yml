@@ -21,7 +21,7 @@ services:
 
     command:
       - "-c"
-      - '(echo "* * * * * if ! pidof rclone; then rclone move /data/brscan remote:${REMOTE_SCAN_PATH}; fi" | crontab -) && crond -f'
+      - '(echo "* * * * * if ! pidof rclone; then rclone move /data/brscan remote:${REMOTE_SCAN_PATH} --include "*.png"; fi" | crontab -) && crond -f'
 
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/rclone:/config/rclone
