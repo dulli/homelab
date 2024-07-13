@@ -1,60 +1,32 @@
-version: "3.7"
 services:
-  firezone:
-    image: firezone/firezone:${VERSION:-latest}
-    container_name: firezone
+  wg-easy:
+    image: ghcr.io/wg-easy/wg-easy
+    container_name: wg-easy
     restart: unless-stopped
-    depends_on:
-      - postgres
 
     networks:
-      - backend
       - proxy
-
     ports:
-      - ${WIREGUARD_PORT:-51820}:${WIREGUARD_PORT:-51820}/udp
+      - "51820:51820/udp"
 
     environment:
-      EXTERNAL_URL: ${EXTERNAL_URL}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-      DATABASE_ENCRYPTION_KEY: ${DATABASE_ENCRYPTION_KEY}
-      GUARDIAN_SECRET_KEY: ${GUARDIAN_SECRET_KEY}
-      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
-      LIVE_VIEW_SIGNING_SALT: ${LIVE_VIEW_SIGNING_SALT}
-      COOKIE_SIGNING_SALT: ${COOKIE_SIGNING_SALT}
-      COOKIE_ENCRYPTION_SALT: ${COOKIE_ENCRYPTION_SALT}
-
+      LANG: de
+      WG_HOST: "${EXTERNAL_URL}"
+      PASSWORD: "${PASSWORD}"
+      
     volumes:
-      - ${DOCKER_DATA_PATH:-/var/docker}/firezone/data:/var/firezone
+      - /var/docker/wg-easy/etc/wireguard:/etc/wireguard
 
-    cap_add: # Needed for WireGuard and firewall support.
+    cap_add:
       - NET_ADMIN
       - SYS_MODULE
-
-    sysctls: # Needed for masquerading and NAT.
-      - net.ipv6.conf.all.disable_ipv6=0
+    sysctls:
       - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=0
       - net.ipv6.conf.all.forwarding=1
 
-  postgres:
-    image: postgres:15
-    container_name: firezone_db
-    restart: unless-stopped
-
-    networks:
-      - backend
-
-    volumes:
-      - ${DOCKER_DATA_PATH:-/var/docker}/firezone/db:/var/lib/postgresql/data
-
-    environment:
-      POSTGRES_DB: ${DATABASE_NAME:-firezone}
-      POSTGRES_USER: ${DATABASE_USER:-postgres}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?err}
-
 networks:
-  backend:
-    driver: bridge
-    internal: true
   proxy:
     external: true
+    
