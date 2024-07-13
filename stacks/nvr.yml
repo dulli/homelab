@@ -11,12 +11,12 @@ services:
       - proxy
 
     ports:
-      - 1984:1984
-      - 8555:8555
+      - "8555:8555/tcp" # WebRTC over tcp
+      - "8555:8555/udp" # WebRTC over udp
 
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${DOCKER_DATA_PATH:-/var/docker}/frigate/config.yml:/config/config.yml:ro
+      - ${DOCKER_DATA_PATH:-/var/docker}/frigate/config:/config
       - ${DOCKER_DATA_PATH:-/var/docker}/frigate/storage:/media/frigate
       - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
         target: /tmp/cache

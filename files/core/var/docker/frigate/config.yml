@@ -8,21 +8,29 @@ ffmpeg:
 
 go2rtc:
   streams:
-    WZ-CCTV:
+    wz-cctv:
       - "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif"
+    wz-cctv-sub:
+      - "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=1"
+    front-klingel:
+      - "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@flur-klingel:554/cam/realmonitor?channel=1&subtype=0#backchannel=0"
+    front-klingel-2way:
+      - "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@flur-klingel:554/cam/realmonitor?channel=1&subtype=0"
+    front-klingel-sub:
+      - "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@flur-klingel:554/cam/realmonitor?channel=1&subtype=1#backchannel=0"
   webrtc:
     candidates:
-      - 192.168.188.25:8555
+      - core:8555
       - stun:8555
 
 cameras:
-  WZ-CCTV:
+  wz-cctv:
     ffmpeg:
       inputs:
-        - path: "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=1"
+        - path: "rtsp://127.0.0.1:8554/wz-cctv-sub"
           roles:
             - detect
-        - path: "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif"
+        - path: "rtsp://127.0.0.1:8554/wz-cctv"
           roles:
             - record
       output_args:
@@ -38,23 +46,40 @@ cameras:
       retain:
         mode: motion
         days: 5
+  flur-klingel:
+    ffmpeg:
+      inputs:
+        - path: "rtsp://127.0.0.1:8554/front-klingel-sub"
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+        - path: "rtsp://127.0.0.1:8554/front-klingel"
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+      output_args:
+        record: preset-record-generic-audio-aac
+    detect:
+      enabled: True
+      width: 720
+      height: 576
+    snapshots:
+      enabled: True
+    record:
+      enabled: True
+      retain:
+        mode: motion
+        days: 5
 
 detectors:
-  ov:
-    type: openvino
-    device: AUTO
-    model:
-      path: /openvino-model/ssdlite_mobilenet_v2.xml
-
-model:
-  width: 300
-  height: 300
-  input_tensor: nhwc
-  input_pixel_format: bgr
-  labelmap_path: /openvino-model/coco_91cl_bkgr.txt
+  coral:
+    type: edgetpu
+    device: pci:0
 
 objects:
   track:
     - person
     - dog
-    - cat
+
+# curl -v -u admin:{FRIGATE_RTSP_PASSWORD} --digest http://flur-klingel/cgi-bin/configManager.cgi?action=setConfig&VideoTalkPhoneGeneral.RingFile=0
+# curl -v -u admin:{FRIGATE_RTSP_PASSWORD} --digest http://flur-klingel/cgi-bin/configManager.cgi?action=setConfig&Encode[0].MainFormat[0].Audio.Compression=G.711A&Encode[0].MainFormat[0].Audio.Frequency=8000
