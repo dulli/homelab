@@ -1,23 +1,21 @@
-version: "2.1"
 services:
-  calibre-web:
-    image: linuxserver/calibre-web
-    container_name: calibre-web
+  calibre-web-automated:
+    image: crocodilestick/calibre-web-automated:latest
+    container_name: calibre-web-automated
     restart: unless-stopped
-
     networks:
       - proxy
       - smtp
-
     volumes:
-      - ${DOCKER_DATA_PATH:-/var/docker}/calibre-web:/config
-      - ${CALIBRE_ROOT}:/books
-
+      - ${DOCKER_DATA_PATH:-/var/docker}/calibre-web-automated/config:/config
+      - ${DOCKER_DATA_PATH:-/var/docker}/calibre-web-automated/ingest:/cwa-book-ingest
+      - ${CALIBRE_ROOT}:/calibre-library
     environment:
       TZ: ${TZ:-Europe/Berlin}
       PUID: 1540
       PGID: 1540
-      
+      DOCKER_MODS: lscr.io/linuxserver/mods:universal-calibre-v7.16.0
+
 networks:
   proxy:
     external: true
