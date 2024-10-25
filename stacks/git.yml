@@ -1,21 +1,20 @@
-version: "3"
 services:
   server:
-    image: codeberg.org/forgejo/forgejo:1.20
+    image: codeberg.org/forgejo/forgejo:1.21
     container_name: forgejo
     restart: always
-
+    ports:
+      - ${SSH_PORT}:22
     networks:
       - proxy
-
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/forgejo:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-
     environment:
-      - USER_UID=${UID:-1000}
-      - USER_GID=${GID:-1000}
+      USER_UID: ${UID:-1000}
+      USER_GID: ${GID:-1000}
+      FORGEJO__server__SSH_PORT: ${SSH_PORT}
 
 networks:
   proxy:
