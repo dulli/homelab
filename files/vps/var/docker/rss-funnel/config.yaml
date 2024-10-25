@@ -1,0 +1,22 @@
+endpoints:
+  - path: /golem.xml
+    note: Full text of Golem
+    source: https://rss.golem.de/rss.php
+    filters:
+      - discard:
+          field: title
+          matches:
+            - "^Anzeige:"
+            - "^Podcast Besser Wissen:"
+      - full_text:
+          simplify: false
+
+  - path: /fefe.xml
+    note: Fefes blog with short titles
+    source: http://blog.fefe.de/rss.xml
+    filters:
+      - full_text:
+          keep_element: "ul>li"
+      - remove_element:
+          - "html>li>a:first-child"
+      - modify_post: post.title = `${post.title.split(/(?<=[!?.]+(?=$|\s|\<|[\da-z]{2,}))/i, 1)[0]}`
