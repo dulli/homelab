@@ -1,22 +1,17 @@
-version: "3.5"
 services:
   crowdsec:
     image: crowdsecurity/crowdsec
     container_name: crowdsec
     restart: unless-stopped
-
     ports:
       - 8080:8080
-
     networks:
       - proxy
-
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/crowdsec/data:/var/lib/crowdsec/data
       - ${DOCKER_DATA_PATH:-/var/docker}/crowdsec/config:/etc/crowdsec
       - ${DOCKER_DATA_PATH:-/var/docker}/caddy/logs:/caddy:ro
       - /var/log:/var/log:ro
-
     environment:
       COLLECTIONS: "crowdsecurity/caddy crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/iptables crowdsecurity/linux crowdsecurity/sshd"
       GID: ${GID:-1000}
@@ -25,4 +20,3 @@ services:
 networks:
   proxy:
     external: true
-    

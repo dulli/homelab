@@ -1,4 +1,3 @@
-version: "3.3"
 services:
   shlink:
     image: ghcr.io/shlinkio/shlink:stable
@@ -6,35 +5,29 @@ services:
     restart: unless-stopped
     depends_on:
       - shlink-db
-
     networks:
       - backend
       - proxy
-
-    #volumes:
-    #  - /var/docker/shlink/data:/etc/shlink/data/
-
+    volumes:
+      - /var/docker/shlink/data:/etc/shlink/data/
     environment:
-      - DEFAULT_DOMAIN=${DOMAIN}
-      - IS_HTTPS_ENABLED=true
-      - INITIAL_API_KEY=${API_KEY}
-      - GEOLITE_LICENSE_KEY=${GEO_KEY}
-      - DB_DRIVER=mysql
-      - DB_HOST=shlink-db
-      - DB_USER=root
-      - DB_PASSWORD=mypass
+      DEFAULT_DOMAIN: ${DOMAIN_SHORT}
+      IS_HTTPS_ENABLED: true
+      INITIAL_API_KEY: ${API_KEY}
+      GEOLITE_LICENSE_KEY: ${GEO_KEY}
+      DB_DRIVER: mysql
+      DB_HOST: shlink-db
+      DB_USER: root
+      DB_PASSWORD: mypass
 
   shlink-db:
     image: mysql:5.7.25
     container_name: shlink-db
     restart: unless-stopped
-
     networks:
       - backend
-
     volumes:
       - /var/docker/shlink/db:/var/lib/mysql
-
     environment:
       MYSQL_DATABASE: shlink
       MYSQL_ROOT_PASSWORD: mypass
@@ -43,7 +36,6 @@ services:
     image: ghcr.io/shlinkio/shlink-web-client:stable
     container_name: shlink-web
     restart: unless-stopped
-
     networks:
       - proxy
 

@@ -1,18 +1,15 @@
-version: "3.3"
 services:
   stirling-pdf:
     image: ghcr.io/frooodle/s-pdf:latest
     container_name: stirling-pdf
     restart: unless-stopped
-
     networks:
       - proxy
-
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/stirling-pdf/configs:/configs
-
+      - ${DOCKER_DATA_PATH:-/var/docker}/stirling-pdf/tessdata:/usr/share/tesseract-ocr/5/tessdata
     environment:
-      - DOCKER_ENABLE_SECURITY=false
+      DOCKER_ENABLE_SECURITY: false
 
 networks:
   proxy:

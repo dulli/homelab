@@ -1,13 +1,10 @@
-version: "2"
 services:
   pyload:
     image: ghcr.io/dulli/pyload-ng:0
     container_name: pyload-ng
     restart: unless-stopped
-
     networks:
       - proxy
-
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/pyload:/opt/pyload/config
       - ${DOWNLOAD_PATH:-/var/pyload}:/opt/pyload/download

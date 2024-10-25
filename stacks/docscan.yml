@@ -1,11 +1,9 @@
-version: "3.5"
 services:
   brscan:
     image: ghcr.io/dulli/brscan:1
     container_name: brscan
     restart: unless-stopped
     privileged: true
-
     volumes:
       - /dev/bus/usb:/dev/bus/usb
       - ${DOCKER_DATA_PATH:-/var/docker}/brscan:/root/brscan
@@ -16,13 +14,10 @@ services:
     restart: unless-stopped
     depends_on:
       - brscan
-
     entrypoint: "/bin/sh"
-
     command:
       - "-c"
       - '(echo "* * * * * if ! pidof rclone; then rclone move /data/brscan remote:${REMOTE_SCAN_PATH} --include "*.png"; fi" | crontab -) && crond -f'
-
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/rclone:/config/rclone
       - ${DOCKER_DATA_PATH:-/var/docker}/brscan:/data/brscan

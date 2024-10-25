@@ -1,5 +1,3 @@
-version: '2.4'
-
 services:
   octoprint:
     image: octoprint/octoprint
@@ -14,7 +12,7 @@ services:
     volumes:
       - /var/docker/octoprint:/octoprint
     environment:
-      - ENABLE_MJPG_STREAMER=true
+      ENABLE_MJPG_STREAMER: true
 
 networks:
   proxy:

@@ -1,21 +1,18 @@
-version: "3.7"
 services:
   smtprelay:
-    image: ghcr.io/dulli/smtprelay:1
+    image: smtprelay:latest
     container_name: smtprelay
     restart: unless-stopped
-
+    hostname: smtp.${DOMAIN}
     networks:
       - smtp
-
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/smtprelay/users:/etc/smtprelay_users
       - ${TLS_CERT_PATH}.key:/tls.key:ro
       - ${TLS_CERT_PATH}.crt:/tls.crt:ro
-
     environment:
       SMTPRELAY_ALLOWED_USERS: /etc/smtprelay_users # username bcrypt-hash [email[,email[,...]]]
-      SMTPRELAY_ALLOWED_NETS: ${SUBNET_IPV4:-172.25.0.0/16}
+      SMTPRELAY_ALLOWED_NETS: ${SUBNET_SMTP_IPV4}
       SMTPRELAY_REMOTES: ${REMOTE_PROTOCOL:-starttls}://${REMOTE_USER}:${REMOTE_PASSWORD}@${REMOTE_ADDRESS}:${REMOTE_PORT:-587}
       SMTPRELAY_LOG_LEVEL: debug
 
@@ -27,7 +24,6 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: ${SUBNET_IPV4:-172.25.0.0/16}
-
+        - subnet: ${SUBNET_SMTP_IPV4}
     driver_opts:
       com.docker.network.bridge.name: docker-smtp

@@ -1,18 +1,16 @@
 services:
-    community:
-        image: openproject/community:13
-        container_name: openproject
-    
-        networks:
-            - proxy
-            
-        environment:
-            OPENPROJECT_HOST__NAME: projects.lan.${DOMAIN}
-            OPENPROJECT_SECRET_KEY_BASE: ${SECRET}
-            
-        volumes:
-            - /var/docker/openproject/pgdata:/var/openproject/pgdata
-            - /var/docker/openproject/assets:/var/openproject/assets
+  community:
+    image: openproject/community:13
+    container_name: openproject
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - /var/docker/openproject/pgdata:/var/openproject/pgdata
+      - /var/docker/openproject/assets:/var/openproject/assets
+    environment:
+      OPENPROJECT_HOST__NAME: projects.lan.dulli.me
+      OPENPROJECT_SECRET_KEY_BASE: ${SECRET}
 
 networks:
   proxy:

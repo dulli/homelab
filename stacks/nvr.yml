@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   frigate:
     image: ghcr.io/blakeblackshear/frigate:stable
@@ -6,14 +5,11 @@ services:
     restart: unless-stopped
     privileged: true
     shm_size: "64mb" # (width * height * 1.5 * 9 + 270480)/1048576 = <shm size in mb> (per Camera)
-
     networks:
       - proxy
-
     ports:
       - "8555:8555/tcp" # WebRTC over tcp
       - "8555:8555/udp" # WebRTC over udp
-
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${DOCKER_DATA_PATH:-/var/docker}/frigate/config:/config
@@ -22,11 +18,9 @@ services:
         target: /tmp/cache
         tmpfs:
           size: 1000000000
-
     devices:
       - /dev/dri/renderD128 # for intel hwaccel
       - /dev/apex_0:/dev/apex_0 # for PCIe Coral
-
     environment:
       FRIGATE_RTSP_PASSWORD: ${RTSP_PASSWORD}
       FRIGATE_MQTT_PASSWORD: ${MQTT_PASSWORD}

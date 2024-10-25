@@ -1,13 +1,10 @@
-version: "3.7"
 services:
   actual-server:
     image: actualbudget/actual-server:latest-alpine
     container_name: actual-server
     restart: unless-stopped
-
     networks:
       - proxy
-
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/actual/server:/data
 

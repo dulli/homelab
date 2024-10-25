@@ -1,19 +1,15 @@
-version: "3.7"
 services:
   snapserver:
     image: ghcr.io/dulli/unbound:1
     container_name: unbound
     restart: unless-stopped
-
     networks:
       - proxy
-
     ports:
       - 53:5300/tcp
       - 53:5300/udp
       - 853:8530/tcp
       - 853:8530/udp
-
     volumes:
       - ${TLS_CERT_PATH}.key:/etc/unbound/tls/dns.key
       - ${TLS_CERT_PATH}.crt:/etc/unbound/tls/dns.crt
