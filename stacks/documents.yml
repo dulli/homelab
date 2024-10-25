@@ -1,13 +1,10 @@
-version: "3.4"
 services:
   broker:
     image: docker.io/library/redis:7
     container_name: paperless-redis
     restart: unless-stopped
-
     networks:
       - backend
-
     volumes:
       - redisdata:/data
 
@@ -19,30 +16,27 @@ services:
       - broker
       - gotenberg
       - tika
-
     networks:
       - proxy
       - backend
-
     healthcheck:
       test:
         ["CMD", "curl", "-fs", "-S", "--max-time", "2", "http://localhost:8000"]
       interval: 30s
       timeout: 10s
       retries: 5
-
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/paperless/data:/usr/src/paperless/data
       - ${DOCKER_DATA_PATH:-/var/docker}/paperless/media:/usr/src/paperless/media
       - ${DOCKER_DATA_PATH:-/var/docker}/paperless/export:/usr/src/paperless/export
       - ${DOCKER_DATA_PATH:-/var/docker}/paperless/consume:/usr/src/paperless/consume
-
     environment:
       PAPERLESS_REDIS: redis://broker:6379
       PAPERLESS_TIKA_ENABLED: 1
       PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000
       PAPERLESS_TIKA_ENDPOINT: http://tika:9998
       PAPERLESS_OCR_LANGUAGE: deu
+      PAPERLESS_OCR_USER_ARGS: '{"continue_on_soft_render_error": true}'
       PAPERLESS_URL: https://docs.lan.${DOMAIN}
       PAPERLESS_SECRET_KEY: ${SECRET_KEY}
       PAPERLESS_TIME_ZONE: Europe/Berlin
@@ -52,13 +46,11 @@ services:
       #USERMAP_GID: ${GID:-1000}
 
   gotenberg:
-    image: docker.io/gotenberg/gotenberg:7.8
+    image: docker.io/gotenberg/gotenberg:8.7
     container_name: paperless-gotenberg
     restart: unless-stopped
-
     networks:
       - backend
-
     # The gotenberg chromium route is used to convert .eml files. We do not
     # want to allow external content like tracking pixels or even javascript.
     command:
@@ -70,7 +62,6 @@ services:
     image: ghcr.io/paperless-ngx/tika:latest
     container_name: paperless-tika
     restart: unless-stopped
-
     networks:
       - backend
 
@@ -80,18 +71,14 @@ services:
     restart: unless-stopped
     depends_on:
       - webserver
-
     entrypoint: "/bin/sh"
-
     command:
       - "-c"
-      - '(echo "* * * * * if ! pidof rclone; then rclone sync /data/archive remote:${REMOTE_ARCHIVE_PATH} && rclone move remote:${REMOTE_CONSUME_PATH} /data/consumepr; fi" | crontab -) && crond -f'
-
+      - '(echo "* * * * * if ! pidof rclone; then rclone sync /data/archive remote:${REMOTE_ARCHIVE_PATH} && rclone move remote:${REMOTE_CONSUME_PATH} /data/consume; fi" | crontab -) && crond -f'
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/paperless/rclone:/config/rclone
       - ${DOCKER_DATA_PATH:-/var/docker}/paperless/media/documents/archive:/data/archive:ro
       - ${DOCKER_DATA_PATH:-/var/docker}/paperless/consume:/data/consume
-
     networks:
       - proxy
 
