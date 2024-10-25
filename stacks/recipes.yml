@@ -1,55 +1,54 @@
-version: "3.7"
 services:
-  mealie-frontend:
-    image: hkotel/mealie:frontend-nightly
-    container_name: mealie-frontend
+  db_recipes:
+    image: postgres:16-alpine
+    container_name: tandoor-postgres
     restart: unless-stopped
+    networks:
+      - backend
+    volumes:
+      - /var/docker/tandoor/postgresql:/var/lib/postgresql/data
+    env_file:
+      - stack.env
 
+  web_recipes:
+    image: vabene1111/recipes
+    container_name: tandoor
+    restart: unless-stopped
+    depends_on:
+      - db_recipes
     networks:
       - proxy
       - backend
-
     volumes:
-      - ${DOCKER_DATA_PATH:-/var/docker}/mealie:/app/data/
+      - /var/docker/tandoor/mediafiles:/opt/recipes/mediafiles
+      - staticfiles:/opt/recipes/staticfiles
+      - nginxconf:/opt/recipes/nginx/conf.d
+    env_file:
+      - stack.env
 
-    environment:
-      TZ: Europe/Berlin
-      PUID: ${UID:-2000}
-      PGID: ${GID:-2000}
-      API_URL: http://mealie-api:9000
-
-  mealie-api:
-    image: hkotel/mealie:api-nightly
-    container_name: mealie-api
+  nginx_recipes:
+    image: nginx:mainline-alpine
+    container_name: tandoor-nginx
     restart: unless-stopped
-
+    depends_on:
+      - web_recipes
     networks:
-      - backend
       - proxy
-      - smtp
-
+      - backend
     volumes:
-      - ${DOCKER_DATA_PATH:-/var/docker}/mealie:/app/data/
+      - /var/docker/tandoor/mediafiles:/media:ro
+      - nginxconf:/etc/nginx/conf.d:ro
+      - staticfiles:/static:ro
+    env_file:
+      - stack.env
 
-    environment:
-      TZ: Europe/Berlin
-      BASE_URL: ${BASE_URL}
-      PUID: ${UID:-2000}
-      PGID: ${GID:-2000}
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: 2587
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASSWORD: ${SMTP_PASSWORD}
-      SMTP_FROM_NAME: ${SMTP_NAME:-Mealie}
-      SMTP_FROM_EMAIL: ${SMTP_MAIL}
-      DEFAULT_EMAIL: ${SMTP_DEFAULTMAIL}
-      ALLOW_SIGNUP: false
+volumes:
+  nginxconf:
+  staticfiles:
 
 networks:
-  proxy:
-    external: true
-  smtp:
-    external: true
   backend:
     driver: bridge
     internal: true
+  proxy:
+    external: true
