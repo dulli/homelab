@@ -1,7 +1,7 @@
 mqtt:
   host: 192.168.188.25
   user: frigate
-  password: "{FRIGATE_MQTT_PASSWORD}"
+  password: '{FRIGATE_MQTT_PASSWORD}'
 
 ffmpeg:
   hwaccel_args: preset-vaapi
@@ -9,15 +9,15 @@ ffmpeg:
 go2rtc:
   streams:
     wz-cctv:
-      - "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif"
+      - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=0
     wz-cctv-sub:
-      - "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=1"
+      - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@wz-cctv:554/cam/realmonitor?channel=1&subtype=1
     front-klingel:
-      - "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@flur-klingel:554/cam/realmonitor?channel=1&subtype=0#backchannel=0"
+      - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@flur-klingel:554/cam/realmonitor?channel=1&subtype=0#backchannel=0
     front-klingel-2way:
-      - "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@flur-klingel:554/cam/realmonitor?channel=1&subtype=0"
+      - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@flur-klingel:554/cam/realmonitor?channel=1&subtype=0
     front-klingel-sub:
-      - "rtsp://admin:{FRIGATE_RTSP_PASSWORD}@flur-klingel:554/cam/realmonitor?channel=1&subtype=1#backchannel=0"
+      - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@flur-klingel:554/cam/realmonitor?channel=1&subtype=1#backchannel=0
   webrtc:
     candidates:
       - core:8555
@@ -27,49 +27,46 @@ cameras:
   wz-cctv:
     ffmpeg:
       inputs:
-        - path: "rtsp://127.0.0.1:8554/wz-cctv-sub"
+        - path: rtsp://127.0.0.1:8554/wz-cctv-sub
           roles:
             - detect
-        - path: "rtsp://127.0.0.1:8554/wz-cctv"
+        - path: rtsp://127.0.0.1:8554/wz-cctv
           roles:
             - record
       output_args:
         record: preset-record-generic-audio-aac
     detect:
-      enabled: True
+      enabled: true
       width: 640
       height: 480
-    snapshots:
-      enabled: True
-    record:
-      enabled: True
-      retain:
-        mode: motion
-        days: 5
+    onvif:
+      host: wz-cctv
+      port: 80
+      user: admin
+      password: '{FRIGATE_RTSP_PASSWORD}'
+      autotracking:
+        enabled: false
+        calibrate_on_startup: true
+        zooming: disabled
+        track:
+          - person
   flur-klingel:
     ffmpeg:
       inputs:
-        - path: "rtsp://127.0.0.1:8554/front-klingel-sub"
+        - path: rtsp://127.0.0.1:8554/front-klingel-sub
           input_args: preset-rtsp-restream
           roles:
             - detect
-        - path: "rtsp://127.0.0.1:8554/front-klingel"
+        - path: rtsp://127.0.0.1:8554/front-klingel
           input_args: preset-rtsp-restream
           roles:
             - record
       output_args:
         record: preset-record-generic-audio-aac
     detect:
-      enabled: True
+      enabled: true
       width: 720
       height: 576
-    snapshots:
-      enabled: True
-    record:
-      enabled: True
-      retain:
-        mode: motion
-        days: 5
 
 detectors:
   coral:
@@ -80,6 +77,20 @@ objects:
   track:
     - person
     - dog
+    - cat
+
+snapshots:
+  enabled: true
+record:
+  enabled: true
+  retain:
+    days: 1
+    mode: motion
+  events:
+    retain:
+      default: 7
+      mode: active_objects
 
 # curl -v -u admin:{FRIGATE_RTSP_PASSWORD} --digest http://flur-klingel/cgi-bin/configManager.cgi?action=setConfig&VideoTalkPhoneGeneral.RingFile=0
 # curl -v -u admin:{FRIGATE_RTSP_PASSWORD} --digest http://flur-klingel/cgi-bin/configManager.cgi?action=setConfig&Encode[0].MainFormat[0].Audio.Compression=G.711A&Encode[0].MainFormat[0].Audio.Frequency=8000
+version: 0.14
