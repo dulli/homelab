@@ -22,22 +22,25 @@ services:
       CF_API_TOKEN: ${CF_API_TOKEN}
       BASIC_AUTH_USER: ${BASIC_AUTH_USER}
       BASIC_AUTH_PASSWD: ${BASIC_AUTH_PASSWD}
-      CNL_AUTH_USER: ${CNL_AUTH_USER}
-      CNL_AUTH_PASSWD: ${CNL_AUTH_PASSWD}
       DOMAIN: ${DOMAIN}
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=0
       - net.ipv6.conf.eth0.proxy_ndp=1
 
-  wireguard-tunnel-peer:
+  wireguard-tunnel-server:
     image: ghcr.io/digitallyrefined/docker-wireguard-tunnel:v3
     container_name: caddy-tunnel
     restart: unless-stopped
     networks:
       - tunnel
+    ports:
+      - '51443:51443/udp'
     volumes:
       - ${DOCKER_DATA_PATH:-/var/docker}/caddy/wireguard:/etc/wireguard
     environment:
+      - WIREGUARD_PORT=51443
+      - DOMAIN=vpn.vps.${DOMAIN}
+      - PEERS=1
       - SERVICES=peer1:caddy:8443:8443
     cap_add:
       - NET_ADMIN
@@ -55,12 +58,6 @@ networks:
         - subnet: ${SUBNET_PROXY_IPV6}
     driver_opts:
       com.docker.network.bridge.name: docker-proxy
-      net.ipv4.icmp_echo_ignore_broadcasts: 0
-      net.ipv4.conf.all.bc_forwarding: 1
-# For WOL to work with the proxy network, you need to set the following commands at system level:
-# sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=0
-# sudo sysctl -w net.ipv4.conf.all.bc_forwarding=1
-# sudo sysctl -w net.ipv4.conf.docker-proxy.bc_forwarding=1
 
   tunnel:
     name: tunnel

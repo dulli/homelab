@@ -1,224 +1,175 @@
 {
-	order wake_on_lan before respond
-	acme_dns cloudflare {env.CF_API_TOKEN}
-	dynamic_dns {
-		provider cloudflare {env.CF_API_TOKEN}
-		domains {
-			{$DOMAIN} dyn *.dyn ipv6
-		}
-		versions ipv6
-		ip_source simple_http https://api6.ipify.org
-	}
+    acme_dns cloudflare {env.CF_API_TOKEN}
+    servers :8443 {
+        trusted_proxies static private_ranges
+    }
 }
 
 :80 {
-	root * /srv/static
-	file_server
-	basicauth /auth/* {
-		{env.BASIC_AUTH_USER} {env.BASIC_AUTH_PASSWD}
-	}
-}
-
-core.local:80 {
-	redir /lan/* https://{path.1}.lan.{$DOMAIN}
+    redir /lan/* https://{path.1}.lan.{$DOMAIN}/{path.2}
+    root * /srv/static
+    file_server
+    basic_auth /auth/* {
+        {env.BASIC_AUTH_USER} {env.BASIC_AUTH_PASSWD}
+    }
 }
 
 dns.{$DOMAIN} {
-	respond OK
+    respond OK
 }
-
 smtp.{$DOMAIN} {
-	respond OK
+    respond OK
 }
 
-*.dyn.{$DOMAIN}, *.lan.{$DOMAIN}, *.lan.{$DOMAIN}:80, lan.{$DOMAIN} {
-	encode zstd gzip
+*.dyn.{$DOMAIN}, http://*.dyn.{$DOMAIN}:8443, *.lan.{$DOMAIN}, *.lan.{$DOMAIN}:80 {
+    encode zstd gzip
 
-	@web {
-		host web.dyn.{$DOMAIN}
-	}
-	handle @web {
-		root * /srv/static/web
-		file_server
-	}
+    @web {
+        host web.dyn.{$DOMAIN}
+    }
+    handle @web {
+        root * /srv/static/web
+        file_server
+    }
 
-	@test {
-		host test.dyn.{$DOMAIN}
-		host test.lan.{$DOMAIN}
-	}
-	handle @test {
-		respond OK
-	}
+    @test {
+        host test.dyn.{$DOMAIN}
+        host test.lan.{$DOMAIN}
+    }
+    handle @test {
+        respond OK
+    }
 
-	@notinternal {
-		host lan.{$DOMAIN}
-		host *.lan.{$DOMAIN}
-		not remote_ip 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8 fe80::/64
-	}
-	handle @notinternal {
-		respond "Access denied" 403
-	}
+    @notinternal {
+        host lan.{$DOMAIN}
+        host *.lan.{$DOMAIN}
+        not remote_ip 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8 fe80::/64
+    }
+    handle @notinternal {
+        respond "Access denied" 403
+    }
 
-	@ha {
-		host ha.dyn.{$DOMAIN}
-		host ha.lan.{$DOMAIN}
-	}
-	handle @ha {
-		reverse_proxy core:8123
-	}
+    @ha {
+        host ha.dyn.{$DOMAIN}
+        host ha.lan.{$DOMAIN}
+    }
+    handle @ha {
+        reverse_proxy core:8123
+    }
 
-	@pw host pw.lan.{$DOMAIN}
-	handle @pw {
-		reverse_proxy vaultwarden:3011
-	}
+    @pw host pw.lan.{$DOMAIN}
+    handle @pw {
+        reverse_proxy vaultwarden:3011
+    }
 
-	@dl host dl.lan.{$DOMAIN}
-	handle @dl {
-		reverse_proxy pyload-ng:8000
-	}
+    @dl host dl.lan.{$DOMAIN}
+    handle @dl {
+        reverse_proxy pyload-ng:8000
+    }
 
-	@cnl host cnl.lan.{$DOMAIN}
-	handle @cnl {
-		basicauth {
-			{env.CNL_AUTH_USER} {env.CNL_AUTH_PASSWD}
-		}
-		reverse_proxy pyload-ng:9666
-	}
+    @cnl host cnl.lan.{$DOMAIN}
+    handle @cnl {
+        basic_auth {
+            {env.CNL_AUTH_USER} {env.CNL_AUTH_PASSWD}
+        }
+        reverse_proxy pyload-ng:9666
+    }
 
-	@jf {
-		host jf.dyn.{$DOMAIN}
-		host jf.lan.{$DOMAIN}
-	}
-	handle @jf {
-		reverse_proxy jellyfin:8096
-	}
+    @jf {
+        host jf.dyn.{$DOMAIN}
+        host jf.lan.{$DOMAIN}
+    }
+    handle @jf {
+        reverse_proxy jellyfin:8096
+    }
 
-	@js host js.lan.{$DOMAIN}
-	handle @js {
-		reverse_proxy jellyseerr:5055
-	}
+    @js host js.lan.{$DOMAIN}
+    handle @js {
+        reverse_proxy jellyseerr:5055
+    }
 
-	@portainer host portainer.lan.{$DOMAIN}
-	handle @portainer {
-		reverse_proxy core:9000
-	}
+    @portainer host portainer.lan.{$DOMAIN}
+    handle @portainer {
+        reverse_proxy core:9000
+    }
 
-	@snapcast host snapcast.lan.{$DOMAIN}
-	handle @snapcast {
-		reverse_proxy core:1780
-	}
+    @snapcast host snapcast.lan.{$DOMAIN}
+    handle @snapcast {
+        reverse_proxy core:1780
+    }
 
-	@hyperion host hyperion.lan.{$DOMAIN}
-	handle @hyperion {
-		reverse_proxy hyperion-ng:8090
-	}
+    @hyperion host hyperion.lan.{$DOMAIN}
+    handle @hyperion {
+        reverse_proxy hyperion-ng:8090
+    }
 
-	@omv host omv.lan.{$DOMAIN}
-	handle @omv {
-		reverse_proxy nas:5000
-	}
+    @vac host wz-vac.lan.{$DOMAIN}
+    handle @vac {
+        reverse_proxy wz-vac:80
+    }
 
-	@nas host nas.lan.{$DOMAIN}
-	handle @nas {
-		reverse_proxy nas:5001
-	}
+    @docs host docs.lan.{$DOMAIN}
+    handle @docs {
+        reverse_proxy paperless:8000
+    }
 
-	@vac host wz-vac.lan.{$DOMAIN}
-	handle @vac {
-		reverse_proxy wz-vac:80
-	}
+    @budget host budget.lan.{$DOMAIN}
+    handle @budget {
+        reverse_proxy actual-server:5006
+    }
 
-	@docs host docs.lan.{$DOMAIN}
-	handle @docs {
-		reverse_proxy paperless:8000
-	}
+    @books host books.lan.{$DOMAIN}
+    handle @books {
+        reverse_proxy calibre-web-automated:8083
+    }
 
-	@budget host budget.lan.{$DOMAIN}
-	handle @budget {
-		reverse_proxy actual-server:5006
-	}
+    @nvr host nvr.lan.{$DOMAIN}
+    handle @nvr {
+        reverse_proxy frigate:5000
+    }
 
-	@books host books.lan.{$DOMAIN}
-	handle @books {
-		reverse_proxy calibre-web:8083
-	}
+    @rtc host rtc.lan.{$DOMAIN}
+    handle @rtc {
+        reverse_proxy frigate:1984
+    }
 
-	@nvr host nvr.lan.{$DOMAIN}
-	handle @nvr {
-		reverse_proxy frigate:5000
-	}
+    @recipes host recipes.lan.{$DOMAIN}
+    handle @recipes {
+        reverse_proxy mealie-frontend:3000
+    }
 
-	@rtc host rtc.lan.{$DOMAIN}
-	handle @rtc {
-		reverse_proxy frigate:1984
-	}
+    @pins host pins.lan.{$DOMAIN}
+    handle @pins {
+        reverse_proxy tinypin:3000
+    }
 
-	@recipes host recipes.lan.{$DOMAIN}
-	handle @recipes {
-		reverse_proxy mealie-frontend:3000
-	}
+    @pdf host pdf.lan.{$DOMAIN}
+    handle @pdf {
+        reverse_proxy stirling-pdf:8080
+    }
 
-	@recipes2 host recipes2.lan.{$DOMAIN}
-	handle @recipes2 {
-		reverse_proxy tandoor-nginx:80
-	}
+    @git host git.lan.{$DOMAIN}
+    handle @git {
+        reverse_proxy forgejo:3000
+    }
 
-	@sso host sso.dyn.{$DOMAIN}
-	handle @sso {
-		reverse_proxy authentik-server:9000
-	}
+    @projects host projects.lan.{$DOMAIN}
+    handle @projects {
+        reverse_proxy openproject:80
+    }
 
-	@pins host pins.lan.{$DOMAIN}
-	handle @pins {
-		reverse_proxy tinypin:3000
-	}
+    @octoprint host octoprint.lan.{$DOMAIN}
+    handle @octoprint {
+        reverse_proxy octoprint:80
+    }
 
-	@photos host photos.lan.{$DOMAIN}
-	handle @photos {
-		reverse_proxy nas:8000
-	}
+    @ryot host tracker.lan.{$DOMAIN}
+    handle @ryot {
+        reverse_proxy ryot:8000
+    }
 
-	@pdf host pdf.lan.{$DOMAIN}
-	handle @pdf {
-		reverse_proxy stirling-pdf:8080
-	}
-
-	@git host git.lan.{$DOMAIN}
-	handle @git {
-		reverse_proxy forgejo:3000
-	}
-
-	@n8n host n8n.lan.{$DOMAIN}
-	handle @n8n {
-		reverse_proxy n8n:5678
-	}
-
-	@projects host projects.lan.{$DOMAIN}
-	handle @projects {
-		reverse_proxy openproject:80
-	}
-
-	@octoprint host octoprint.lan.{$DOMAIN}
-	handle @octoprint {
-		reverse_proxy octoprint:80
-	}
-
-	@ryot host tracker.lan.{$DOMAIN}
-	handle @ryot {
-		reverse_proxy ryot:3000
-	}
-
-	@tang host tang.lan.{$DOMAIN}
-	handle @tang {
-		reverse_proxy tang:7500
-	}
-
-	@home host lan.{$DOMAIN}
-	handle @home {
-		reverse_proxy flame:5005
-	}
-
-	log {
-		output file /var/log/access-lan.log
-	}
+    @tang host tang.lan.{$DOMAIN}
+    handle @tang {
+        reverse_proxy tang:7500
+    }
 }

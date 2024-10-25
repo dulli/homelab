@@ -1,52 +1,57 @@
-{
-	acme_dns cloudflare {env.CF_API_TOKEN}
-}
+import /srv/redirects/*.caddyfile
+import /srv/cnames/*.caddyfile
+import /srv/sites/*.caddyfile
 
-vps.{$DOMAIN} {
-	root * /srv/static
-	file_server
-	basicauth /auth/* {
-		{env.BASIC_AUTH_USER} {env.BASIC_AUTH_PASSWD}
-	}
+*.dyn.{$DOMAIN} {
+    tls {
+        dns cloudflare {env.CF_API_TOKEN}
+    }
+    reverse_proxy http://caddy-tunnel:8443
 }
-
-import /etc/caddy/cnames/*
 
 *.vps.{$DOMAIN} {
-	encode zstd gzip
+    tls {
+        dns cloudflare {env.CF_API_TOKEN}
+    }
+    encode zstd gzip
 
-	@rss host rss.vps.{$DOMAIN}
-	handle @rss {
-		reverse_proxy miniflux:8080
-	}
+    @rss host rss.vps.{$DOMAIN}
+    handle @rss {
+        reverse_proxy miniflux:8080
+    }
 
-	@status host status.vps.{$DOMAIN}
-	handle @status {
-		reverse_proxy uptime-kuma:3001
-	}
+    @rssfunnel host rssf.vps.{$DOMAIN}
+    handle @rssfunnel {
+        reverse_proxy rss-funnel:4080
+    }
 
-	@vpn host vpn.vps.{$DOMAIN}
-	handle @vpn {
-		reverse_proxy firezone:13000
-	}
+    @vpn host vpn.vps.{$DOMAIN}
+    handle @vpn {
+        reverse_proxy wg-easy:51821
+    }
 
-	@wa host wa.vps.{$DOMAIN}
-	handle @wa {
-		reverse_proxy umami:3000
-	}
+    @wa host wa.vps.{$DOMAIN}
+    handle @wa {
+        reverse_proxy umami:3000
+    }
 
-	@gokapi host files.vps.{$DOMAIN}
-	handle @gokapi {
-		reverse_proxy gokapi:53842
-	}
+    @links host links.vps.{$DOMAIN}
+    handle @links {
+        reverse_proxy shlink-web:80
+    }
 
-	@links host links.vps.{$DOMAIN}
-	handle @links {
-		reverse_proxy shlink-web:80
-	}
+    @shorturl host go.vps.{$DOMAIN}
+    handle @shorturl {
+        reverse_proxy shlink:8080
+    }
 
-	@shorturl host go.vps.{$DOMAIN}
-	handle @shorturl {
-		reverse_proxy shlink:8080
-	}
+    @secrets host secrets.vps.{$DOMAIN}
+    handle @secrets {
+        reverse_proxy hemmelig:3000
+    }
+
+    @recipes host recipes.vps.{$DOMAIN}
+    handle @recipes {
+        reverse_proxy tandoor-nginx:80
+    }
 }
