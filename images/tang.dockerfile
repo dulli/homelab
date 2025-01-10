@@ -35,7 +35,7 @@ RUN apk add --no-cache --update \
     jansson \
     openssl \
     zlib \
-    && tangd --version > /.version
+    && tangd --version 2> /.version
 
 ENV PORT 7500
 
