@@ -3,8 +3,20 @@ services:
     image: ghcr.io/dulli/snapserver:0
     container_name: snapserver
     restart: unless-stopped
-    network_mode: host
+    hostname: docker-snapserver
+
+    networks:
+      - phy
+      - proxy
+
     volumes:
-      - ${DOCKER_DATA_PATH:-/var/docker}/snapcast/server:/root/.config/snapserver
-    # environment:
-    #   CONFIG_PATH: "/config/snapserver.conf" # optional
+      - config:/root/.config
+
+volumes:
+  config:
+
+networks:
+  proxy:
+    external: true
+  phy:
+    external: true
